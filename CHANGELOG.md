@@ -4,6 +4,14 @@
 
 ## 2026-07-23
 
+### 实现服务器 OTA 流程
+
+- 新增 `serviceOta()`，联网空闲时定时检查服务器设备配置。
+- 新增 `checkAndApplyOta()`，读取 `device-config` 中的固件版本和下载地址。
+- 新增 `applyOtaFirmware()`，使用 `Update.writeStream()` 下载并写入新固件。
+- 设置页显示 OTA 状态，例如 `OTA OFF`、`OTA OK`、`OTA WRITE`、`OTA REBOOT`。
+- 公开版默认 `example.invalid` 会跳过 OTA，不包含真实服务器地址。
+
 ### 批量拆分页面动态刷新和完善开源文档
 
 - 设置页拆分为框架和动态刷新，音量变化只刷新音量数字和进度条。

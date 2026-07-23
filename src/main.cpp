@@ -228,6 +228,8 @@ String voiceStatus = "READY";
 String voiceTranscript;
 String voiceReply;
 String voiceStreamSessionId;
+String otaStatus = "OTA OFF";
+String otaAvailableVersion;
 uint8_t voiceReplyBitmap[kVoiceReplyBitmapBytes] = {};
 bool voiceReplyBitmapValid = false;
 int speakerVolumePercent = 500;
@@ -246,6 +248,7 @@ uint8_t lastLightRenderedRed = 0xFF;
 uint8_t lastLightRenderedGreen = 0xFF;
 uint8_t lastLightRenderedBlue = 0xFF;
 bool wifiSetupPageRendered = false;
+String lastSettingsRenderedOtaStatus;
 uint8_t ledRed = 0;
 uint8_t ledGreen = 0;
 uint8_t ledBlue = 0;
@@ -363,6 +366,7 @@ void setUiPage(UiPage page) {
   if (previousPage != page || page != UiPage::Settings) {
     settingsPageRendered = false;
     lastSettingsRenderedVolume = -1;
+    lastSettingsRenderedOtaStatus = "";
   }
   if (previousPage != page || page != UiPage::Server) {
     serverPageRendered = false;
@@ -1510,7 +1514,7 @@ void renderSettingsFrame() {
   drawPanel(6, 25, 116, 22, 0x0841, 0x2945);
   drawText(12, 32, "VOL", 0xFFE0, 1);
   drawPanel(6, 61, 116, 22, 0x0841, 0x2945);
-  drawText(12, 68, "AUTO PAGE", 0x07FF, 1);
+  drawText(12, 68, "OTA", 0x07FF, 1);
   drawPanel(6, 90, 116, 22, 0x0841, 0x2945);
   drawText(72, 97, "V" FIRMWARE_VERSION, 0x9CF3, 1);
   drawText(6, 119, "P4 BACK P5- P6+ P7 WIFI", 0x9CF3, 1);
@@ -1527,9 +1531,12 @@ void renderSettingsDynamicOnly(bool force) {
         0xFFE0);
     lastSettingsRenderedVolume = speakerVolumePercent;
   }
-  if (force) {
-    tftFillRect(80, 67, 35, 10, 0x0841);
-    drawText(82, 68, autoRotatePages ? "ON" : "OFF", autoRotatePages ? 0x07E0 : 0xF800, 1);
+  if (force || lastSettingsRenderedOtaStatus != otaStatus) {
+    tftFillRect(42, 67, 76, 10, 0x0841);
+    const uint16_t color = otaStatus.indexOf("ERR") >= 0 || otaStatus.indexOf("HTTP") >= 0 ||
+        otaStatus.indexOf("FAIL") >= 0 ? 0xF800 : 0xFFFF;
+    drawText(43, 68, otaStatus.substring(0, 12), color, 1);
+    lastSettingsRenderedOtaStatus = otaStatus;
   }
   if (force || lastSettingsRenderedWifiConnected != wifiConnected) {
     tftFillRect(11, 96, 58, 10, 0x0841);
@@ -2268,6 +2275,109 @@ bool fetchServerStatus() {
   return false;
 }
 
+bool serviceBaseConfigured() {
+  return String(SERVICE_BASE_URL).indexOf("example.invalid") < 0;
+}
+
+bool firmwareVersionIsNewer(const String &version) {
+  return !version.isEmpty() && version != FIRMWARE_VERSION;
+}
+
+bool applyOtaFirmware(const String &firmwareUrl) {
+  if (firmwareUrl.isEmpty()) {
+    otaStatus = "OTA NOURL";
+    return false;
+  }
+
+  HTTPClient http;
+  http.setTimeout(20000);
+  if (!http.begin(firmwareUrl)) {
+    otaStatus = "OTA URL";
+    return false;
+  }
+  const int code = http.GET();
+  if (code != HTTP_CODE_OK) {
+    otaStatus = String("OTA HTTP ") + code;
+    http.end();
+    return false;
+  }
+
+  const int contentLength = http.getSize();
+  if (!Update.begin(contentLength > 0 ? contentLength : UPDATE_SIZE_UNKNOWN)) {
+    otaStatus = "OTA SPACE";
+    http.end();
+    return false;
+  }
+
+  otaStatus = "OTA WRITE";
+  if (uiPageIs(UiPage::Settings)) renderWeather();
+  WiFiClient *stream = http.getStreamPtr();
+  const size_t written = Update.writeStream(*stream);
+  const bool writeOk = contentLength < 0 || written == static_cast<size_t>(contentLength);
+  const bool updateOk = writeOk && Update.end() && Update.isFinished();
+  http.end();
+  if (!updateOk) {
+    otaStatus = "OTA FAIL";
+    Update.abort();
+    return false;
+  }
+
+  otaStatus = "OTA REBOOT";
+  if (uiPageIs(UiPage::Settings)) renderWeather();
+  delay(800);
+  ESP.restart();
+  return true;
+}
+
+bool checkAndApplyOta() {
+  if (!serviceBaseConfigured()) {
+    otaStatus = "OTA OFF";
+    return false;
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+    otaStatus = "OTA NOWIFI";
+    return false;
+  }
+  if (accessToken.isEmpty() && !loginDudServer()) {
+    otaStatus = "OTA LOGIN";
+    return false;
+  }
+
+  for (int attempt = 0; attempt < 2; ++attempt) {
+    HTTPClient http;
+    http.setTimeout(10000);
+    if (!http.begin(kDeviceConfigUrl)) {
+      otaStatus = "OTA BEGIN";
+      return false;
+    }
+    http.addHeader("Authorization", String("Bearer ") + accessToken);
+    const int code = http.GET();
+    const String body = code == HTTP_CODE_OK ? http.getString() : "";
+    http.end();
+
+    if (code == HTTP_CODE_OK) {
+      const String firmware = jsonObject(body, "firmware");
+      otaAvailableVersion = jsonString(firmware, "version");
+      const String firmwareUrl = jsonString(firmware, "url");
+      if (!firmwareVersionIsNewer(otaAvailableVersion)) {
+        otaStatus = "OTA OK";
+        return false;
+      }
+      otaStatus = String("OTA ") + otaAvailableVersion;
+      if (uiPageIs(UiPage::Settings)) renderWeather();
+      return applyOtaFirmware(firmwareUrl);
+    }
+
+    if (code == 401 && attempt == 0) {
+      accessToken = "";
+      if (loginDudServer()) continue;
+    }
+    otaStatus = String("OTA HTTP ") + code;
+    return false;
+  }
+  return false;
+}
+
 void writeWavHeader(uint8_t *data, uint32_t pcmBytes) {
   const uint32_t riffSize = 36 + pcmBytes;
   const uint32_t byteRate = kVoiceSampleRate * 2;
@@ -2956,6 +3066,14 @@ void serviceServerStatus() {
   renderWeather();
 }
 
+void serviceOta() {
+  if (voiceRecording || voiceUploadPending || voiceStatus == "SPEAK" || voiceResultHeld()) return;
+  if (millis() < nextOtaCheckMs) return;
+  nextOtaCheckMs = millis() + kOtaCheckMs;
+  checkAndApplyOta();
+  if (uiPageIs(UiPage::Settings)) renderWeather();
+}
+
 void serviceDashboardPage() {
   if (!(uiPageIs(UiPage::Watch) || uiPageIs(UiPage::Server)) || voiceResultHeld()) return;
   if (!autoRotatePages) return;
@@ -3371,6 +3489,7 @@ void loop() {
   if (!voiceRecording && !voiceUploadPending) {
     serviceWeather();
     serviceServerStatus();
+    serviceOta();
   }
   serviceDashboardPage();
   serviceWatchFace();

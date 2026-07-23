@@ -1,6 +1,8 @@
 # OTA 接口设计
 
-当前公开仓库不包含真实服务器地址。OTA 功能应通过私有 `SERVICE_BASE_URL` 编译宏启用，并使用 Bearer token 访问服务端。
+当前公开仓库不包含真实服务器地址。OTA 功能通过私有 `SERVICE_BASE_URL` 编译宏启用，并使用 Bearer token 访问服务端。
+
+公开版默认 `SERVICE_BASE_URL` 是 `http://example.invalid`，固件会显示 `OTA OFF` 并跳过 OTA 检查。
 
 ## 设备配置接口
 
@@ -32,6 +34,15 @@ Authorization: Bearer <token>
 3. 比较服务端 `firmware.version` 和本地 `FIRMWARE_VERSION`。
 4. 如果发现新版本，进入 OTA 状态：检查、下载、写入、重启。
 5. 失败时保留旧固件，屏幕显示简短失败原因。
+
+## 固件侧状态
+
+当前固件已实现：
+
+- `serviceOta()` 后台定时检查。
+- `checkAndApplyOta()` 获取设备配置并判断版本。
+- `applyOtaFirmware()` 下载固件并通过 `Update.writeStream()` 写入。
+- 设置页显示 OTA 状态，例如 `OTA OFF`、`OTA OK`、`OTA WRITE`、`OTA REBOOT`。
 
 ## 屏幕状态建议
 
