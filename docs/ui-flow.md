@@ -129,22 +129,22 @@ flowchart LR
 
 ## State Model
 
-Replace page booleans with a single page state:
+The firmware now uses a single page state instead of page booleans:
 
 ```cpp
 enum class UiPage : uint8_t {
-  Home,
+  Watch,
   Menu,
+  Voice,
+  Server,
+  Light,
   Settings,
   WifiSetup,
-  Server,
-  Led,
-  AiCall,
   MpuData,
-  Angle,
-  Level,
+  MpuLevel,
+  MpuAngle,
   Odometer,
-  MotionEvent,
+  MpuMotion,
 };
 ```
 
@@ -152,7 +152,7 @@ Recommended shared model variables:
 
 | Variable | Type | Owner |
 | --- | --- | --- |
-| `uiPage` | `UiPage` | UI router |
+| `currentUiPage` | `UiPage` | UI router |
 | `menuSelectedIndex` | `uint8_t` | menu screen |
 | `speakerVolumePercent` | `int` | audio/settings |
 | `voiceStatus` | enum/string | voice service |
@@ -190,8 +190,8 @@ Suggested EEZ actions:
 
 ## Refactor Steps
 
-1. Add `UiPage` and keep old render functions, replacing page booleans.
-2. Add a central `dispatchButton(index)` function.
+1. Done: add `UiPage` and keep old render functions, replacing page booleans.
+2. Next: add a central `dispatchButton(index)` function.
 3. Move each page's static layout and dynamic refresh into separate functions.
 4. Build EEZ Studio screens matching this document.
 5. Export LVGL screen code and connect generated callbacks to existing services.

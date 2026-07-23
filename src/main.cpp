@@ -134,6 +134,21 @@ struct MpuCalibration {
   float gz = 0.0f;
 };
 
+enum class UiPage : uint8_t {
+  Watch,
+  Menu,
+  Voice,
+  Server,
+  Light,
+  Settings,
+  WifiSetup,
+  MpuData,
+  MpuLevel,
+  MpuAngle,
+  MpuOdometer,
+  MpuMotion,
+};
+
 WeatherData weather;
 ServerStatus serverStatus;
 MpuData mpuData;
@@ -153,17 +168,7 @@ unsigned long lastOdometerStepMs = 0;
 unsigned long lastMotionMs = 0;
 unsigned long lastFallMs = 0;
 unsigned long mpuLedPulseUntilMs = 0;
-bool showServerPage = false;
-bool showVoicePage = false;
-bool showMenuPage = false;
-bool showLightPage = false;
-bool showSettingsPage = false;
-bool showWifiSetupPage = false;
-bool showMpuPage = false;
-bool showLevelPage = false;
-bool showOdometerPage = false;
-bool showAnglePage = false;
-bool showMotionPage = false;
+UiPage currentUiPage = UiPage::Watch;
 uint8_t menuSelectedIndex = 0;
 bool autoRotatePages = false;
 bool buttonRawState[4] = {HIGH, HIGH, HIGH, HIGH};
@@ -299,6 +304,21 @@ lv_obj_t *createWatchLabel(lv_obj_t *parent, const lv_font_t *font, lv_color_t c
 void renderWeather();
 bool watchFaceVisible();
 bool readMpuData();
+
+bool uiPageIs(UiPage page) {
+  return currentUiPage == page;
+}
+
+bool sensorPageVisible() {
+  return uiPageIs(UiPage::MpuData) || uiPageIs(UiPage::MpuLevel) ||
+      uiPageIs(UiPage::MpuAngle) || uiPageIs(UiPage::MpuOdometer) ||
+      uiPageIs(UiPage::MpuMotion);
+}
+
+void setUiPage(UiPage page) {
+  currentUiPage = page;
+  if (!sensorPageVisible()) lastDynamicSensorPage = SensorPageId::None;
+}
 
 #if defined(PROVISION_SSID) && defined(PROVISION_PASSWORD)
 void provisionCredentials() {
@@ -485,7 +505,7 @@ void saveMpuSettings() {
 }
 
 void pulseMpuLedFeedback() {
-  if (!mpuLedFeedback || showLightPage) return;
+  if (!mpuLedFeedback || uiPageIs(UiPage::Light)) return;
   setLedMode(LedMode::Flash);
   mpuLedPulseUntilMs = millis() + kMpuLedPulseMs;
 }
@@ -515,7 +535,7 @@ void colorWheel(uint8_t position, uint8_t brightness, uint8_t &red, uint8_t &gre
 void serviceBoardLedEffects() {
   if (mpuLedPulseUntilMs != 0 && static_cast<long>(millis() - mpuLedPulseUntilMs) >= 0) {
     mpuLedPulseUntilMs = 0;
-    if (!showLightPage && ledMode == LedMode::Flash) setLedMode(LedMode::Off);
+    if (!uiPageIs(UiPage::Light) && ledMode == LedMode::Flash) setLedMode(LedMode::Off);
   }
   if (ledMode == LedMode::Off || millis() < nextLedEffectMs) return;
   uint8_t red = 0;
@@ -850,19 +870,19 @@ void serviceMpuGestures() {
     ++shakeCount;
     mpuGestureStatus = "SHAKE";
     pulseMpuLedFeedback();
-    if (showMpuPage || showMotionPage) renderWeather();
+    if (uiPageIs(UiPage::MpuData) || uiPageIs(UiPage::MpuMotion)) renderWeather();
   } else if (raise) {
     lastRaiseMs = now;
     ++raiseCount;
     mpuGestureStatus = "RAISE";
     wakeDisplayFromGesture();
-    if (showMpuPage || showMotionPage) renderWeather();
+    if (uiPageIs(UiPage::MpuData) || uiPageIs(UiPage::MpuMotion)) renderWeather();
   } else if (fall) {
     lastFallMs = now;
     ++fallCount;
     mpuGestureStatus = "FALL?";
     pulseMpuLedFeedback();
-    if (showMotionPage) renderWeather();
+    if (uiPageIs(UiPage::MpuMotion)) renderWeather();
   } else if (mpuStill) {
     mpuGestureStatus = "STILL";
   }
@@ -1160,9 +1180,7 @@ void drawPanel(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t fil
 }
 
 bool watchFaceVisible() {
-  return !showMenuPage && !showVoicePage && !showServerPage && !showLightPage &&
-      !showSettingsPage && !showWifiSetupPage && !showMpuPage && !showLevelPage &&
-      !showOdometerPage && !showAnglePage && !showMotionPage && !voiceResultHeld();
+  return uiPageIs(UiPage::Watch) && !voiceResultHeld();
 }
 
 void drawDashboardHeader(const char *title, uint16_t accent) {
@@ -1526,11 +1544,11 @@ void renderMotionPage() {
 }
 
 SensorPageId currentSensorPage() {
-  if (showMpuPage) return SensorPageId::Mpu;
-  if (showLevelPage) return SensorPageId::Level;
-  if (showAnglePage) return SensorPageId::Angle;
-  if (showOdometerPage) return SensorPageId::Odometer;
-  if (showMotionPage) return SensorPageId::Motion;
+  if (uiPageIs(UiPage::MpuData)) return SensorPageId::Mpu;
+  if (uiPageIs(UiPage::MpuLevel)) return SensorPageId::Level;
+  if (uiPageIs(UiPage::MpuAngle)) return SensorPageId::Angle;
+  if (uiPageIs(UiPage::MpuOdometer)) return SensorPageId::Odometer;
+  if (uiPageIs(UiPage::MpuMotion)) return SensorPageId::Motion;
   return SensorPageId::None;
 }
 
@@ -1845,47 +1863,47 @@ void renderWatchFace() {
 }
 
 void renderWeather() {
-  if (showMenuPage) {
+  if (uiPageIs(UiPage::Menu)) {
     renderMenuPage();
     return;
   }
-  if (showVoicePage || voiceResultHeld()) {
+  if (uiPageIs(UiPage::Voice) || voiceResultHeld()) {
     renderVoicePage();
     return;
   }
-  if (showLightPage) {
+  if (uiPageIs(UiPage::Light)) {
     renderLightPage();
     return;
   }
-  if (showSettingsPage) {
+  if (uiPageIs(UiPage::Settings)) {
     renderSettingsPage();
     return;
   }
-  if (showWifiSetupPage) {
+  if (uiPageIs(UiPage::WifiSetup)) {
     renderWifiSetupPage();
     return;
   }
-  if (showMpuPage) {
+  if (uiPageIs(UiPage::MpuData)) {
     renderMpuPage();
     return;
   }
-  if (showLevelPage) {
+  if (uiPageIs(UiPage::MpuLevel)) {
     renderLevelPage();
     return;
   }
-  if (showAnglePage) {
+  if (uiPageIs(UiPage::MpuAngle)) {
     renderAnglePage();
     return;
   }
-  if (showOdometerPage) {
+  if (uiPageIs(UiPage::MpuOdometer)) {
     renderOdometerPage();
     return;
   }
-  if (showMotionPage) {
+  if (uiPageIs(UiPage::MpuMotion)) {
     renderMotionPage();
     return;
   }
-  if (showServerPage) {
+  if (uiPageIs(UiPage::Server)) {
     renderServerStatus();
     return;
   }
@@ -2400,8 +2418,7 @@ void stopVoiceCallMode() {
 }
 
 void startVoiceRecording(bool callMode = false) {
-  showMenuPage = false;
-  showVoicePage = true;
+  setUiPage(UiPage::Voice);
   voiceResultHoldUntilMs = 0;
   voiceUploadPending = false;
   voiceStopRequested = false;
@@ -2456,7 +2473,7 @@ bool handleVoiceAiResponse(bool success, int code, const String &response) {
     } else {
       voiceStatus = code == 422 ? "SHORT" : "ERR";
     }
-    showVoicePage = true;
+    setUiPage(UiPage::Voice);
     voiceResultHoldUntilMs = voiceCallMode ? 0 : millis() + kVoiceResultHoldMs;
     if (voiceCallMode) voiceCallRestartMs = millis() + kVoiceCallRestartDelayMs;
     Serial.printf("Voice AI request failed: HTTP %d %s\n", code, response.c_str());
@@ -2474,7 +2491,7 @@ bool handleVoiceAiResponse(bool success, int code, const String &response) {
     if (!playVoiceReply(audioUrl)) Serial.println("Voice playback failed");
     voiceStatus = "OK";
   }
-  showVoicePage = true;
+  setUiPage(UiPage::Voice);
   voiceResultHoldUntilMs = voiceCallMode ? 0 : millis() + kVoiceResultHoldMs;
   if (voiceCallMode) voiceCallRestartMs = millis() + kVoiceCallRestartDelayMs;
   return voiceStatus == "OK";
@@ -2694,12 +2711,10 @@ void serviceServerStatus() {
 }
 
 void serviceDashboardPage() {
-  if (showMenuPage || showVoicePage || showLightPage || showSettingsPage || showWifiSetupPage ||
-      showMpuPage || showLevelPage || showOdometerPage || showAnglePage || showMotionPage ||
-      voiceResultHeld()) return;
+  if (!(uiPageIs(UiPage::Watch) || uiPageIs(UiPage::Server)) || voiceResultHeld()) return;
   if (!autoRotatePages) return;
   if (millis() < nextDashboardPageMs) return;
-  showServerPage = !showServerPage;
+  setUiPage(uiPageIs(UiPage::Server) ? UiPage::Watch : UiPage::Server);
   nextDashboardPageMs = millis() + kDashboardPageMs;
   renderWeather();
 }
@@ -2714,7 +2729,7 @@ void serviceWatchFace() {
 void serviceMpuPage() {
   if (!mpuReady) {
     retryMpu6050();
-    if ((showMpuPage || showLevelPage || showOdometerPage || showAnglePage || showMotionPage) &&
+    if ((sensorPageVisible()) &&
         millis() >= nextMpuRefreshMs) {
       nextMpuRefreshMs = millis() + 500UL;
       renderSensorDynamicOnly();
@@ -2727,7 +2742,7 @@ void serviceMpuPage() {
     serviceMpuGestures();
     serviceOdometer();
   }
-  if (!(showMpuPage || showLevelPage || showOdometerPage || showAnglePage || showMotionPage) ||
+  if (!(sensorPageVisible()) ||
       millis() < nextMpuRefreshMs) return;
   nextMpuRefreshMs = millis() + kMpuRefreshMs;
   renderSensorDynamicOnly();
@@ -2744,48 +2759,37 @@ void serviceLvgl() {
 }
 
 void closeAllPages() {
-  showMenuPage = false;
-  showVoicePage = false;
-  showServerPage = false;
-  showLightPage = false;
-  showSettingsPage = false;
-  showWifiSetupPage = false;
-  showMpuPage = false;
-  showLevelPage = false;
-  showOdometerPage = false;
-  showAnglePage = false;
-  showMotionPage = false;
-  lastDynamicSensorPage = SensorPageId::None;
+  setUiPage(UiPage::Watch);
 }
 
 void openMenuItem(MenuItem item) {
   voiceResultHoldUntilMs = 0;
   closeAllPages();
   if (item == MenuItem::Settings) {
-    showSettingsPage = true;
+    setUiPage(UiPage::Settings);
     nextWatchFaceRefreshMs = 0;
   } else if (item == MenuItem::Server) {
-    showServerPage = true;
+    setUiPage(UiPage::Server);
   } else if (item == MenuItem::Light) {
-    showLightPage = true;
+    setUiPage(UiPage::Light);
   } else if (item == MenuItem::Mpu) {
-    showMpuPage = true;
+    setUiPage(UiPage::MpuData);
     readMpuData();
     nextMpuRefreshMs = 0;
   } else if (item == MenuItem::Angle) {
-    showAnglePage = true;
+    setUiPage(UiPage::MpuAngle);
     readMpuData();
     nextMpuRefreshMs = 0;
   } else if (item == MenuItem::Level) {
-    showLevelPage = true;
+    setUiPage(UiPage::MpuLevel);
     readMpuData();
     nextMpuRefreshMs = 0;
   } else if (item == MenuItem::Odometer) {
-    showOdometerPage = true;
+    setUiPage(UiPage::MpuOdometer);
     readMpuData();
     nextMpuRefreshMs = 0;
   } else if (item == MenuItem::Motion) {
-    showMotionPage = true;
+    setUiPage(UiPage::MpuMotion);
     readMpuData();
     nextMpuRefreshMs = 0;
   } else if (!voiceUploadPending) {
@@ -2827,7 +2831,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showVoicePage || voiceResultHeld()) {
+    if (uiPageIs(UiPage::Voice) || voiceResultHeld()) {
       if (index == 0) {
         stopVoiceCallMode();
         voiceUploadPending = false;
@@ -2850,7 +2854,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showMenuPage) {
+    if (uiPageIs(UiPage::Menu)) {
       voiceResultHoldUntilMs = 0;
       if (index == 0) {
         closeAllPages();
@@ -2868,7 +2872,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showSettingsPage) {
+    if (uiPageIs(UiPage::Settings)) {
       if (index == 0) {
         closeAllPages();
         nextWatchFaceRefreshMs = 0;
@@ -2877,13 +2881,7 @@ void serviceButtons() {
       } else if (index == 2) {
         adjustSpeakerVolume(kSpeakerVolumeStepPercent);
       } else {
-        showSettingsPage = false;
-        showWifiSetupPage = true;
-        showMpuPage = false;
-        showLevelPage = false;
-        showOdometerPage = false;
-        showAnglePage = false;
-        showMotionPage = false;
+        setUiPage(UiPage::WifiSetup);
         startConfigurationPortal(true);
         nextWatchFaceRefreshMs = 0;
       }
@@ -2891,21 +2889,15 @@ void serviceButtons() {
       continue;
     }
 
-    if (showWifiSetupPage) {
+    if (uiPageIs(UiPage::WifiSetup)) {
       if (index == 0) {
-        showWifiSetupPage = false;
-        showSettingsPage = true;
-        showMpuPage = false;
-        showLevelPage = false;
-        showOdometerPage = false;
-        showAnglePage = false;
-        showMotionPage = false;
+        setUiPage(UiPage::Settings);
       }
       renderWeather();
       continue;
     }
 
-    if (showMpuPage) {
+    if (uiPageIs(UiPage::MpuData)) {
       if (index == 0) {
         closeAllPages();
         nextWatchFaceRefreshMs = 0;
@@ -2916,7 +2908,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showLevelPage) {
+    if (uiPageIs(UiPage::MpuLevel)) {
       if (index == 0) {
         closeAllPages();
         nextWatchFaceRefreshMs = 0;
@@ -2927,7 +2919,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showAnglePage) {
+    if (uiPageIs(UiPage::MpuAngle)) {
       if (index == 0) {
         closeAllPages();
         nextWatchFaceRefreshMs = 0;
@@ -2938,7 +2930,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showOdometerPage) {
+    if (uiPageIs(UiPage::MpuOdometer)) {
       if (index == 0) {
         closeAllPages();
         nextWatchFaceRefreshMs = 0;
@@ -2955,7 +2947,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showMotionPage) {
+    if (uiPageIs(UiPage::MpuMotion)) {
       if (index == 0) {
         closeAllPages();
         nextWatchFaceRefreshMs = 0;
@@ -2969,7 +2961,7 @@ void serviceButtons() {
       } else if (index == 2) {
         mpuLedFeedback = !mpuLedFeedback;
         saveMpuSettings();
-        if (!mpuLedFeedback && !showLightPage && ledMode == LedMode::Flash) {
+        if (!mpuLedFeedback && !uiPageIs(UiPage::Light) && ledMode == LedMode::Flash) {
           mpuLedPulseUntilMs = 0;
           setLedMode(LedMode::Off);
         }
@@ -2980,7 +2972,7 @@ void serviceButtons() {
       continue;
     }
 
-    if (showLightPage) {
+    if (uiPageIs(UiPage::Light)) {
       if (index == 0) {
         setLedMode(LedMode::Off);
         mpuLedPulseUntilMs = 0;
@@ -3002,7 +2994,7 @@ void serviceButtons() {
 
     if (index == 0) {
       voiceResultHoldUntilMs = 0;
-      showMenuPage = true;
+      setUiPage(UiPage::Menu);
       nextWatchFaceRefreshMs = 0;
     } else if (index == 1) {
       voiceResultHoldUntilMs = 0;
@@ -3010,7 +3002,7 @@ void serviceButtons() {
     } else if (index == 2) {
       voiceResultHoldUntilMs = 0;
       closeAllPages();
-      showMenuPage = true;
+      setUiPage(UiPage::Menu);
     } else {
       if (!voiceUploadPending) {
         closeAllPages();

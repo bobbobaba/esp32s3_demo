@@ -94,7 +94,7 @@ esp32s3_wifi_setup/
   - MPU 手势/事件检测
   - LED 特效
 
-后续计划把当前多布尔页面状态重构成单一 `UiPage` 状态机，并逐步迁移到 LVGL/EEZ Studio 生成的页面代码。
+当前页面状态已经收口为单一 `UiPage` 状态机，后续会继续把按键分发和页面渲染迁移到 LVGL/EEZ Studio 生成的页面代码。
 
 ## 硬件接线
 
@@ -261,8 +261,8 @@ build_flags =
 
 当前 UI 由手写 ST7735 绘制和部分 LVGL 组成。后续计划：
 
-1. 用 `UiPage` 状态机替换多个 `showXxxPage` 布尔变量。
-2. 把按键统一成 `dispatchButton()`。
+1. 已完成：用 `UiPage` 状态机替换多个 `showXxxPage` 布尔变量。
+2. 下一步：把按键统一成 `dispatchButton()`。
 3. 把每个页面拆成静态布局和动态数据刷新。
 4. 使用 EEZ Studio/EEZ Flow 重新设计界面和页面跳转关系。
 5. 导出 LVGL 页面代码，逐步替换手写 UI。
