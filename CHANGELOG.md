@@ -4,6 +4,12 @@
 
 ## 2026-07-23
 
+### 恢复 EEZ 编辑页面板 UI
+
+- 查明 EEZ 的正确基础面板控件为 `LVGLPanelWidget`，不再使用默认蓝色主题的 `LVGLButtonWidget` 模拟卡片。
+- 在 `.eez-project` 中恢复首页、菜单、AI、设置、服务器、LED、Wi-Fi 和 MPU 数据页的面板结构。
+- 校验所有 EEZ 控件均限制在 128x128 范围内，避免再次出现比例失调或大块遮挡。
+
 ### 修正 EEZ 编辑页比例失调
 
 - 移除 `.eez-project` 中用于模拟卡片的 `LVGLButtonWidget`，避免 EEZ 默认主题把卡片渲染成过大的蓝色按钮。
