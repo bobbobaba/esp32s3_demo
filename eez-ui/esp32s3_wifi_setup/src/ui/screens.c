@@ -68,20 +68,20 @@ static const lv_font_t *font_for_label(const char *text) {
     for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
         if (*p >= 0x80) return &lv_font_simsun_16_cjk;
     }
-    if (strcmp(text, "12:48") == 0) return &lv_font_montserrat_24;
+    if (strcmp(text, "12:48") == 0) return &lv_font_montserrat_48;
     if (strcmp(text, "LISTEN") == 0) return &lv_font_montserrat_12;
-    return &lv_font_montserrat_10;
+    return &lv_font_montserrat_12;
 }
 
 static uint32_t color_for_label(const char *text) {
-    if (strstr(text, "TEMP")) return 0xFFD75A;
-    if (strstr(text, "CPU")) return 0x7DFF7A;
-    if (strstr(text, "MEM")) return 0x5FE8FF;
-    if (strstr(text, "OTA")) return 0x19D3FF;
-    if (strstr(text, "WIFI") || strstr(text, "NET")) return 0x7DFF7A;
-    if (strstr(text, "RAINBOW") || strstr(text, "LED")) return 0x19D3FF;
-    if (strstr(text, "P4") || strstr(text, "P5") || strstr(text, "P6") || strstr(text, "P7")) return 0x91A0B6;
-    return 0xF5F7FA;
+    if (strstr(text, "TEMP")) return 0x8A5A00;
+    if (strstr(text, "CPU")) return 0x146C2E;
+    if (strstr(text, "MEM")) return 0x0B5C7A;
+    if (strstr(text, "OTA")) return 0x006C8F;
+    if (strstr(text, "WIFI") || strstr(text, "NET")) return 0x146C2E;
+    if (strstr(text, "RAINBOW") || strstr(text, "LED")) return 0x006C8F;
+    if (strstr(text, "P4") || strstr(text, "P5") || strstr(text, "P6") || strstr(text, "P7")) return 0x344054;
+    return 0x111827;
 }
 
 void create_screen_home() {
@@ -90,22 +90,16 @@ void create_screen_home() {
     lv_obj_t *cat = lv_img_create(s);
     lv_img_set_src(cat, &catstand_img);
     lv_obj_set_pos(cat, 48, 48);
-    panel(s, 4, 4, 58, 24, 0x30343D, 0x626A78);
-    panel(s, 82, 4, 42, 20, 0x0D1710, 0x7DFF7A);
-    panel(s, 6, 35, 82, 31, 0x101722, 0x19D3FF);
-    panel(s, 6, 72, 58, 15, 0x17140C, 0xFFC928);
-    panel(s, 6, 93, 50, 14, 0x0D1710, 0x7DFF7A);
-    panel(s, 6, 110, 50, 14, 0x0D151C, 0x5FE8FF);
     objects.home_cpu = label(s, "CPU 18%", 8, 7, 50, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
     objects.home_mem = label(s, "MEM 42%", 8, 17, 50, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
     objects.home_signal_bars[0] = signal_bar(s, 89, 16, 4, 5);
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
-    objects.home_time = label(s, "12:48", 12, 40, 72, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
-    objects.home_temp = label(s, "TEMP 26C", 11, 74, 50, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
-    label(s, "P4 MENU", 11, 94, 42, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
-    label(s, "P7 AI", 16, 111, 34, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
+    objects.home_time = label(s, "12:48", 4, 28, 122, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
+    objects.home_temp = label(s, "TEMP 26C", 11, 77, 58, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
+    label(s, "P4 MENU", 11, 96, 48, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
+    label(s, "P7 AI", 16, 112, 40, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
     tick_screen_home();
 }
 
@@ -276,6 +270,9 @@ ext_font_desc_t fonts[] = {
 #endif
 #if LV_FONT_MONTSERRAT_32
     { "MONTSERRAT_32", &lv_font_montserrat_32 },
+#endif
+#if LV_FONT_MONTSERRAT_48
+    { "MONTSERRAT_48", &lv_font_montserrat_48 },
 #endif
 };
 

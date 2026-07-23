@@ -2044,7 +2044,7 @@ void updateEezHomePage() {
   for (uint8_t i = 0; i < 4; ++i) {
     if (!::objects.home_signal_bars[i]) continue;
     lv_obj_set_style_bg_color(::objects.home_signal_bars[i],
-        lv_color_hex(i < signalBars ? 0x7DFF7A : 0x626A78), 0);
+        lv_color_hex(i < signalBars ? 0x111827 : 0xD6DBE6), 0);
   }
 }
 
