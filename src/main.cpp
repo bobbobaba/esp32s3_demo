@@ -149,6 +149,15 @@ enum class UiPage : uint8_t {
   MpuMotion,
 };
 
+enum class VoiceRenderMode : uint8_t {
+  None,
+  Uploading,
+  Recording,
+  Speaking,
+  Result,
+  Idle,
+};
+
 WeatherData weather;
 ServerStatus serverStatus;
 MpuData mpuData;
@@ -219,6 +228,10 @@ String voiceStreamSessionId;
 uint8_t voiceReplyBitmap[kVoiceReplyBitmapBytes] = {};
 bool voiceReplyBitmapValid = false;
 int speakerVolumePercent = 500;
+VoiceRenderMode lastVoiceRenderMode = VoiceRenderMode::None;
+String lastVoiceRenderedStatus;
+int lastVoiceRenderedVolume = -1;
+unsigned long lastVoiceRenderedSecond = static_cast<unsigned long>(-1);
 uint8_t ledRed = 0;
 uint8_t ledGreen = 0;
 uint8_t ledBlue = 0;
@@ -316,8 +329,15 @@ bool sensorPageVisible() {
 }
 
 void setUiPage(UiPage page) {
+  const UiPage previousPage = currentUiPage;
   currentUiPage = page;
   if (!sensorPageVisible()) lastDynamicSensorPage = SensorPageId::None;
+  if (previousPage != page || page != UiPage::Voice) {
+    lastVoiceRenderMode = VoiceRenderMode::None;
+    lastVoiceRenderedStatus = "";
+    lastVoiceRenderedVolume = -1;
+    lastVoiceRenderedSecond = static_cast<unsigned long>(-1);
+  }
 }
 
 #if defined(PROVISION_SSID) && defined(PROVISION_PASSWORD)
@@ -1200,60 +1220,77 @@ void drawMeter(uint8_t x, uint8_t y, uint8_t width, float percent, uint16_t colo
   if (fill > 0) tftFillRect(x, y, fill, 6, color);
 }
 
-void renderVoicePage() {
+VoiceRenderMode currentVoiceRenderMode() {
+  if (voiceStopRequested || voiceStatus == "UP") return VoiceRenderMode::Uploading;
+  if (voiceRecording) return VoiceRenderMode::Recording;
+  if (voiceStatus == "SPEAK") return VoiceRenderMode::Speaking;
+  if (voiceStatus == "OK") return VoiceRenderMode::Result;
+  return VoiceRenderMode::Idle;
+}
+
+void renderVoiceFrame() {
   tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
   drawDashboardHeader("服务", 0x07E0);
   drawText(42, 6, "AI", 0xFFFF, 1);
   drawText(60, 6, voiceStatus, voiceStatus == "ERR" ? 0xF800 : 0xFFFF, 1);
   drawText(4, 119, "P4 EXIT P5- V" + String(speakerVolumePercent) + " P6+", 0x9CF3, 1);
+}
 
-  if (voiceStopRequested || voiceStatus == "UP") {
-    drawPanel(31, 32, 66, 55, 0x0841, 0x2945);
-    tftFillRect(62, 42, 4, 4, 0x07FF);
-    tftFillRect(58, 46, 12, 4, 0x07FF);
-    tftFillRect(54, 50, 20, 4, 0x07FF);
-    tftFillRect(50, 54, 28, 5, 0x07FF);
-    tftFillRect(59, 59, 10, 20, 0x07FF);
-    drawText(56, 94, "UP", 0x07FF, 1);
-    drawText(40, 110, "AI WAIT", 0x9CF3, 1);
-    return;
-  }
+void clearVoiceContentArea() {
+  tftFillRect(0, 22, kTftWidth, 95, 0x0000);
+}
 
-  if (voiceRecording) {
-    const unsigned long elapsed = millis() - voiceRecordStartedMs;
-    const unsigned long limit = (voicePcmCapacity * 1000UL) / (kVoiceSampleRate * 2UL);
-    drawPanel(30, 31, 68, 56, 0x0841, 0x2945);
-    tftFillRect(50, 43, 28, 28, 0xF800);
-    tftFillRect(56, 49, 16, 16, 0x0000);
-    drawText(24, 94, "REC", 0xF800, 2);
-    drawText(64, 98, String(elapsed / 1000UL) + "/" + String(limit / 1000UL) + "S", 0xFFFF, 1);
-    drawText(31, 114, voiceCallMode ? "AUTO STOP" : "PIN7 STOP", 0x9CF3, 1);
-    return;
-  }
+void renderVoiceUploadingContent() {
+  clearVoiceContentArea();
+  drawPanel(31, 32, 66, 55, 0x0841, 0x2945);
+  tftFillRect(62, 42, 4, 4, 0x07FF);
+  tftFillRect(58, 46, 12, 4, 0x07FF);
+  tftFillRect(54, 50, 20, 4, 0x07FF);
+  tftFillRect(50, 54, 28, 5, 0x07FF);
+  tftFillRect(59, 59, 10, 20, 0x07FF);
+  drawText(56, 94, "UP", 0x07FF, 1);
+  drawText(40, 110, "AI WAIT", 0x9CF3, 1);
+}
 
-  if (voiceStatus == "SPEAK") {
-    if (voiceReplyBitmapValid) {
-      drawVoiceReplyBitmap(24, 0xFFFF);
-      for (uint8_t column = 0; column < 7; ++column) {
-        const uint8_t height = 4 + ((column * 5) % 10);
-        tftFillRect(31 + column * 10, 115 - height / 2, 5, height, 0x07E0);
-      }
-    } else {
-      drawText(24, 60, "SPEAK", 0x07E0, 2);
+void renderVoiceRecordingContent(bool full) {
+  const unsigned long elapsedSecond = (millis() - voiceRecordStartedMs) / 1000UL;
+  if (!full && elapsedSecond == lastVoiceRenderedSecond) return;
+  clearVoiceContentArea();
+  const unsigned long limit = (voicePcmCapacity * 1000UL) / (kVoiceSampleRate * 2UL);
+  drawPanel(30, 31, 68, 56, 0x0841, 0x2945);
+  tftFillRect(50, 43, 28, 28, 0xF800);
+  tftFillRect(56, 49, 16, 16, 0x0000);
+  drawText(24, 94, "REC", 0xF800, 2);
+  drawText(64, 98, String(elapsedSecond) + "/" + String(limit / 1000UL) + "S", 0xFFFF, 1);
+  drawText(31, 114, voiceCallMode ? "AUTO STOP" : "PIN7 STOP", 0x9CF3, 1);
+  lastVoiceRenderedSecond = elapsedSecond;
+}
+
+void renderVoiceSpeakingContent() {
+  clearVoiceContentArea();
+  if (voiceReplyBitmapValid) {
+    drawVoiceReplyBitmap(24, 0xFFFF);
+    for (uint8_t column = 0; column < 7; ++column) {
+      const uint8_t height = 4 + ((column * 5) % 10);
+      tftFillRect(31 + column * 10, 115 - height / 2, 5, height, 0x07E0);
     }
-    return;
+  } else {
+    drawText(24, 60, "SPEAK", 0x07E0, 2);
   }
+}
 
-  if (voiceStatus == "OK") {
-    if (voiceReplyBitmapValid) {
-      drawVoiceReplyBitmap(24, 0xFFFF);
-    } else {
-      drawText(4, 50, "TEXT", 0xFFFF, 1);
-      drawText(4, 68, String(voiceTranscript.length()) + "B", 0xFFFF, 2);
-    }
-    return;
+void renderVoiceResultContent() {
+  clearVoiceContentArea();
+  if (voiceReplyBitmapValid) {
+    drawVoiceReplyBitmap(24, 0xFFFF);
+  } else {
+    drawText(4, 50, "TEXT", 0xFFFF, 1);
+    drawText(4, 68, String(voiceTranscript.length()) + "B", 0xFFFF, 2);
   }
+}
 
+void renderVoiceIdleContent() {
+  clearVoiceContentArea();
   drawPanel(32, 34, 64, 50, 0x0841, 0x2945);
   tftFillRect(54, 45, 20, 24, 0x07E0);
   tftFillRect(50, 69, 28, 5, 0x07E0);
@@ -1264,6 +1301,24 @@ void renderVoicePage() {
   if (voiceStatus == "NOSPEECH") drawText(25, 84, "NO SPEECH", 0xF800, 1);
   if (voiceStatus == "NOWIFI") drawText(32, 84, "NO WIFI", 0xF800, 1);
   if (voiceStatus == "MEM") drawText(38, 84, "NO MEM", 0xF800, 1);
+}
+
+void renderVoicePage() {
+  const VoiceRenderMode mode = currentVoiceRenderMode();
+  const bool full = mode != lastVoiceRenderMode ||
+      lastVoiceRenderedStatus != voiceStatus ||
+      lastVoiceRenderedVolume != speakerVolumePercent;
+  if (full) renderVoiceFrame();
+
+  if (mode == VoiceRenderMode::Uploading) renderVoiceUploadingContent();
+  else if (mode == VoiceRenderMode::Recording) renderVoiceRecordingContent(full);
+  else if (mode == VoiceRenderMode::Speaking) renderVoiceSpeakingContent();
+  else if (mode == VoiceRenderMode::Result) renderVoiceResultContent();
+  else renderVoiceIdleContent();
+
+  lastVoiceRenderMode = mode;
+  lastVoiceRenderedStatus = voiceStatus;
+  lastVoiceRenderedVolume = speakerVolumePercent;
 }
 
 void renderServerStatus() {

@@ -192,7 +192,9 @@ Suggested EEZ actions:
 
 1. Done: add `UiPage` and keep old render functions, replacing page booleans.
 2. Done: add a central `dispatchButton(index)` function.
-3. Next: move each page's static layout and dynamic refresh into separate functions.
+3. In progress: move each page's static layout and dynamic refresh into separate functions.
+   - Done: AI call page frame/content split, recording timer now refreshes only the content area.
+   - Existing: MPU pages use dynamic refresh helpers for live values.
 4. Build EEZ Studio screens matching this document.
 5. Export LVGL screen code and connect generated callbacks to existing services.
 6. Delete old raw drawing pages after EEZ-generated screens are stable.
