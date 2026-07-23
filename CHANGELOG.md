@@ -4,6 +4,14 @@
 
 ## 2026-07-23
 
+### 增加 EEZ Studio 可视化 UI 草图
+
+- 新增 `eez-ui/esp32s3_wifi_setup/esp32s3_wifi_setup.eez-project`，画布尺寸设为 128x128。
+- 在 EEZ 项目中预建首页、菜单、AI 通话、设置、服务器、LED、Wi-Fi 配网和 MPU 数据 8 个页面。
+- 新增 EEZ 导出的 LVGL UI 骨架代码，包含页面枚举、页面创建函数和可更新的动态 label 对象。
+- 忽略 EEZ Studio 自动生成的运行/构建缓存文件，仓库只保留可维护的项目和源码。
+- 当前 EEZ UI 仍是设计草图，主固件暂时继续使用现有手写 LVGL 页面。
+
 ### 实现服务器 OTA 流程
 
 - 新增 `serviceOta()`，联网空闲时定时检查服务器设备配置。

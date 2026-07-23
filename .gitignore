@@ -22,6 +22,11 @@ local_*.ini
 *.hex
 *.uf2
 
+# EEZ Studio generated runtime/build artifacts
+eez-ui/**/.docker-build-output/
+eez-ui/**/src/ui/.eez-project-build
+eez-ui/**/*.eez-project-ui-state
+
 # OS/editor noise
 .DS_Store
 Thumbs.db

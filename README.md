@@ -30,8 +30,8 @@
 ## 最新更新
 
 - 完整更新记录见：[CHANGELOG.md](CHANGELOG.md)
-- 最新一次更新：实现服务器 OTA 检查/下载/写入流程，设置页显示 OTA 状态。
-- UI 迁移进度：已完成 `UiPage` 状态机和 `dispatchButton()` 按键调度，正在拆分页面静态布局和动态刷新。
+- 最新一次更新：新增 EEZ Studio 128x128 可视化 UI 草图，预建首页、菜单、AI 通话、设置、服务器、LED、Wi-Fi 配网和 MPU 数据页面。
+- UI 迁移进度：已完成 `UiPage` 状态机、`dispatchButton()` 按键调度和 EEZ 项目骨架，下一步是把 EEZ 导出页面接入固件渲染流程。
 
 ## 当前功能更新摘要
 
@@ -73,6 +73,8 @@ esp32s3_wifi_setup/
 │   ├── hardware-wiring.md            # 硬件接线说明
 │   ├── ota-api.md                    # OTA 接口设计
 │   └── ui-flow.md                    # 页面/按钮/状态机蓝图
+├── eez-ui/
+│   └── esp32s3_wifi_setup/           # EEZ Studio 128x128 UI 草图工程
 ├── src/
 │   ├── main.cpp                      # 主固件逻辑
 │   ├── lv_conf.h                     # LVGL 配置

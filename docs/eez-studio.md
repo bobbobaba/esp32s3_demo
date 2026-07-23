@@ -2,6 +2,35 @@
 
 当前固件已经把页面状态和按键入口收口，下一步可以把手写 UI 逐步替换成 EEZ Studio 导出的 LVGL 页面。
 
+## 当前 EEZ 项目
+
+EEZ Studio 打开这个文件：
+
+```text
+/home/bo/esp32s3_wifi_setup/eez-ui/esp32s3_wifi_setup/esp32s3_wifi_setup.eez-project
+```
+
+当前项目已经配置为 128x128 LVGL 画布，并预建这些页面：
+
+| EEZ 页面 | 用途 |
+| --- | --- |
+| `Home` | 表盘首页 |
+| `Menu` | 四按键菜单 |
+| `AI_Call` | AI 通话 |
+| `Settings` | 设置 |
+| `Server` | 云服务器状态 |
+| `LED` | 板载 LED 控制 |
+| `WiFi_Setup` | 手机扫码配网 |
+| `MPU_Data` | MPU6050 数据 |
+
+导出的 LVGL 骨架代码在：
+
+```text
+/home/bo/esp32s3_wifi_setup/eez-ui/esp32s3_wifi_setup/src/ui
+```
+
+注意：这个目录目前是 UI 设计草图和后续迁移样板，还没有接入 `src/main.cpp` 的实际固件渲染流程。
+
 ## 固件侧入口
 
 | 固件接口 | 用途 |
