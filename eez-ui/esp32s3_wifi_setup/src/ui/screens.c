@@ -10,13 +10,17 @@
 
 objects_t objects;
 
+static const uint32_t k_screen_bg = 0x242832;
+extern const lv_font_t lv_font_cn_16;
+
 lv_obj_t *tick_value_change_obj;
 
 static lv_obj_t *screen_base(uint32_t bg) {
     lv_obj_t *screen = lv_obj_create(0);
+    (void)bg;
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(screen, 128, 128);
-    lv_obj_set_style_bg_color(screen, lv_color_hex(bg), 0);
+    lv_obj_set_style_bg_color(screen, lv_color_hex(k_screen_bg), 0);
     lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(screen, 0, 0);
     lv_obj_set_style_pad_all(screen, 0, 0);
@@ -50,6 +54,9 @@ static lv_obj_t *label(lv_obj_t *parent, const char *text, int x, int y, int w, 
 }
 
 static const lv_font_t *font_for_label(const char *text) {
+    for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
+        if (*p >= 0x80) return &lv_font_cn_16;
+    }
     if (strcmp(text, "12:48") == 0) return &lv_font_montserrat_24;
     if (strcmp(text, "LISTEN") == 0) return &lv_font_montserrat_12;
     return &lv_font_montserrat_10;
@@ -71,8 +78,8 @@ void create_screen_home() {
     objects.home = s;
     panel(s, 8, 24, 112, 22, 0x101722, 0x263142);
     panel(s, 20, 52, 88, 31, 0x0D151C, 0x19D3FF);
-    panel(s, 8, 91, 52, 18, 0x17140C, 0xFFC928);
-    panel(s, 68, 91, 52, 18, 0x0D1710, 0x7DFF7A);
+    panel(s, 8, 91, 52, 18, 0x30343D, 0x626A78);
+    panel(s, 68, 91, 52, 18, 0x30343D, 0x626A78);
     label(s, "ESP32-S3", 18, 4, 92, font_for_label("ESP32-S3"), 0x000000 | color_for_label("ESP32-S3"));
     objects.home_temp = label(s, "TEMP 26C", 30, 28, 78, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
     objects.home_time = label(s, "12:48", 27, 58, 74, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
@@ -93,10 +100,10 @@ void create_screen_menu() {
     panel(s, 8, 66, 112, 17, 0x17140C, 0xFFC928);
     panel(s, 8, 87, 112, 17, 0x0D1710, 0x7DFF7A);
     label(s, "MENU", 47, 4, 42, font_for_label("MENU"), 0x000000 | color_for_label("MENU"));
-    objects.menu_rows[0] = label(s, "> AI CALL", 18, 27, 92, font_for_label("> AI CALL"), 0x000000 | color_for_label("> AI CALL"));
-    objects.menu_rows[1] = label(s, "  SERVER", 18, 48, 92, font_for_label("  SERVER"), 0x000000 | color_for_label("  SERVER"));
+    objects.menu_rows[0] = label(s, "> SET", 18, 27, 92, font_for_label("> SET"), 0x000000 | color_for_label("> SET"));
+    objects.menu_rows[1] = label(s, "  服务器", 18, 48, 92, font_for_label("  服务器"), 0x000000 | color_for_label("  服务器"));
     objects.menu_rows[2] = label(s, "  LED", 18, 69, 92, font_for_label("  LED"), 0x000000 | color_for_label("  LED"));
-    objects.menu_rows[3] = label(s, "  SETTINGS", 18, 90, 92, font_for_label("  SETTINGS"), 0x000000 | color_for_label("  SETTINGS"));
+    objects.menu_rows[3] = label(s, "  语音", 18, 90, 92, font_for_label("  语音"), 0x000000 | color_for_label("  语音"));
     label(s, "P5 UP", 4, 114, 38, font_for_label("P5 UP"), 0x000000 | color_for_label("P5 UP"));
     label(s, "P6 DN", 47, 114, 38, font_for_label("P6 DN"), 0x000000 | color_for_label("P6 DN"));
     label(s, "P7 OK", 88, 114, 38, font_for_label("P7 OK"), 0x000000 | color_for_label("P7 OK"));

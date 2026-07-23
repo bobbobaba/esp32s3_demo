@@ -785,7 +785,7 @@
                 "objID": "281b07c6-541c-4b2f-9922-7dbac7369a17"
               },
               "groupIndex": 0,
-              "text": "> AI CALL",
+              "text": "> SET",
               "textType": "literal",
               "longMode": "CLIP",
               "recolor": false
@@ -822,7 +822,7 @@
                 "objID": "e2c51b1c-7115-4aab-bfaf-473e8fe94c21"
               },
               "groupIndex": 0,
-              "text": "  SERVER",
+              "text": "  服务器",
               "textType": "literal",
               "longMode": "CLIP",
               "recolor": false
@@ -896,7 +896,7 @@
                 "objID": "668d5959-70da-4203-b7ee-a09ee8513ee0"
               },
               "groupIndex": 0,
-              "text": "  SETTINGS",
+              "text": "  语音",
               "textType": "literal",
               "longMode": "CLIP",
               "recolor": false
