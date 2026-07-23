@@ -1963,10 +1963,6 @@ bool eezScreenForPage(UiPage page, ScreensEnum &screen) {
     screen = SCREEN_ID_HOME;
     return true;
   }
-  if (page == UiPage::Menu) {
-    screen = SCREEN_ID_MENU;
-    return true;
-  }
   if (page == UiPage::Settings) {
     screen = SCREEN_ID_SETTINGS;
     return true;
