@@ -2033,6 +2033,19 @@ void updateEezHomePage() {
       constrain(static_cast<int>(serverStatus.memoryUsedPercent), 0, 100) : -1;
   lvglSetLabel(::objects.home_cpu, cpuPercent >= 0 ? String("CPU ") + cpuPercent + "%" : String("CPU --"));
   lvglSetLabel(::objects.home_mem, memPercent >= 0 ? String("MEM ") + memPercent + "%" : String("MEM --"));
+  int signalBars = 0;
+  if (WiFi.status() == WL_CONNECTED) {
+    const int rssi = WiFi.RSSI();
+    if (rssi >= -55) signalBars = 4;
+    else if (rssi >= -67) signalBars = 3;
+    else if (rssi >= -78) signalBars = 2;
+    else signalBars = 1;
+  }
+  for (uint8_t i = 0; i < 4; ++i) {
+    if (!::objects.home_signal_bars[i]) continue;
+    lv_obj_set_style_bg_color(::objects.home_signal_bars[i],
+        lv_color_hex(i < signalBars ? 0x7DFF7A : 0x626A78), 0);
+  }
 }
 
 void updateEezMenuPage() {

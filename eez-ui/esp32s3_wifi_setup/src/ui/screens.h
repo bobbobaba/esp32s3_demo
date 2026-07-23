@@ -35,6 +35,7 @@ typedef struct _objects_t {
     lv_obj_t *home_temp;
     lv_obj_t *home_cpu;
     lv_obj_t *home_mem;
+    lv_obj_t *home_signal_bars[4];
     lv_obj_t *menu_rows[4];
     lv_obj_t *ai_status;
     lv_obj_t *ai_you;
