@@ -194,6 +194,7 @@ Suggested EEZ actions:
 2. Done: add a central `dispatchButton(index)` function.
 3. In progress: move each page's static layout and dynamic refresh into separate functions.
    - Done: AI call page frame/content split, recording timer now refreshes only the content area.
+   - Done: menu page frame/list split, selection changes redraw only affected rows when the window does not scroll.
    - Existing: MPU pages use dynamic refresh helpers for live values.
 4. Build EEZ Studio screens matching this document.
 5. Export LVGL screen code and connect generated callbacks to existing services.

@@ -179,6 +179,8 @@ unsigned long lastFallMs = 0;
 unsigned long mpuLedPulseUntilMs = 0;
 UiPage currentUiPage = UiPage::Watch;
 uint8_t menuSelectedIndex = 0;
+uint8_t lastMenuRenderedIndex = 0xFF;
+uint8_t lastMenuRenderedStart = 0xFF;
 bool autoRotatePages = false;
 bool buttonRawState[4] = {HIGH, HIGH, HIGH, HIGH};
 bool buttonStableState[4] = {HIGH, HIGH, HIGH, HIGH};
@@ -337,6 +339,10 @@ void setUiPage(UiPage page) {
     lastVoiceRenderedStatus = "";
     lastVoiceRenderedVolume = -1;
     lastVoiceRenderedSecond = static_cast<unsigned long>(-1);
+  }
+  if (previousPage != page || page != UiPage::Menu) {
+    lastMenuRenderedIndex = 0xFF;
+    lastMenuRenderedStart = 0xFF;
   }
 }
 
@@ -1390,17 +1396,50 @@ void drawMenuTile(uint8_t x, uint8_t y, const char *pin, const char *label, uint
   drawMenuZhText(x + 12, y + 27, label, 0xFFFF);
 }
 
-void renderMenuPage() {
+uint8_t menuWindowStart() {
+  return menuSelectedIndex < 4 ? 0 : menuSelectedIndex - 3;
+}
+
+void renderMenuFrame() {
   tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
   drawDashboardHeader("菜单", 0xFFE0);
-  const uint8_t start = menuSelectedIndex < 4 ? 0 : menuSelectedIndex - 3;
+  drawText(4, 112, "P4 BACK P5 UP P6 DN", 0x9CF3, 1);
+  drawText(42, 121, "P7 OK", 0xFFE0, 1);
+}
+
+void renderMenuList() {
+  const uint8_t start = menuWindowStart();
+  tftFillRect(4, 22, 120, 86, 0x0000);
   for (uint8_t row = 0; row < 4; ++row) {
     const uint8_t itemIndex = start + row;
     if (itemIndex >= kMenuEntryCount) break;
     drawMenuRow(24 + row * 21, kMenuEntries[itemIndex], itemIndex == menuSelectedIndex);
   }
-  drawText(4, 112, "P4 BACK P5 UP P6 DN", 0x9CF3, 1);
-  drawText(42, 121, "P7 OK", 0xFFE0, 1);
+  lastMenuRenderedStart = start;
+  lastMenuRenderedIndex = menuSelectedIndex;
+}
+
+void renderMenuDynamicOnly() {
+  if (menuWindowStart() != lastMenuRenderedStart || lastMenuRenderedIndex >= kMenuEntryCount) {
+    renderMenuList();
+    return;
+  }
+  const uint8_t previousRow = lastMenuRenderedIndex - lastMenuRenderedStart;
+  const uint8_t currentRow = menuSelectedIndex - lastMenuRenderedStart;
+  if (previousRow < 4) {
+    drawMenuRow(24 + previousRow * 21, kMenuEntries[lastMenuRenderedIndex], false);
+  }
+  if (currentRow < 4) {
+    drawMenuRow(24 + currentRow * 21, kMenuEntries[menuSelectedIndex], true);
+  }
+  lastMenuRenderedIndex = menuSelectedIndex;
+}
+
+void renderMenuPage() {
+  const bool full = lastMenuRenderedIndex >= kMenuEntryCount || lastMenuRenderedStart == 0xFF;
+  if (full) renderMenuFrame();
+  if (full) renderMenuList();
+  else renderMenuDynamicOnly();
 }
 
 void renderSettingsPage() {
