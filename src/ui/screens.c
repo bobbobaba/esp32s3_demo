@@ -77,6 +77,16 @@ static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius,
     return obj;
 }
 
+static void time_digit(lv_obj_t *parent, int x, int y, lv_obj_t *segments[7]) {
+    segments[0] = shape(parent, x + 4, y, 12, 4, 2, 0x111827);
+    segments[1] = shape(parent, x + 16, y + 4, 4, 12, 2, 0x111827);
+    segments[2] = shape(parent, x + 16, y + 20, 4, 12, 2, 0x111827);
+    segments[3] = shape(parent, x + 4, y + 32, 12, 4, 2, 0x111827);
+    segments[4] = shape(parent, x, y + 20, 4, 12, 2, 0x111827);
+    segments[5] = shape(parent, x, y + 4, 4, 12, 2, 0x111827);
+    segments[6] = shape(parent, x + 4, y + 16, 12, 4, 2, 0x111827);
+}
+
 static const lv_font_t *font_for_label(const char *text) {
     for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
         if (*p >= 0x80) return &lv_font_simsun_16_cjk;
@@ -110,9 +120,12 @@ void create_screen_home() {
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
-    objects.home_time = label(s, "12", 0, 25, 58, font_for_label("12"), 0x000000 | color_for_label("12"));
-    objects.home_time_colon = label(s, ":", 55, 35, 14, font_for_label(":"), 0x000000 | color_for_label(":"));
-    objects.home_time_minute = label(s, "48", 69, 25, 58, font_for_label("48"), 0x000000 | color_for_label("48"));
+    time_digit(s, 10, 31, objects.home_time_segments[0]);
+    time_digit(s, 34, 31, objects.home_time_segments[1]);
+    objects.home_time_colon_dots[0] = shape(s, 60, 40, 4, 4, 2, 0x111827);
+    objects.home_time_colon_dots[1] = shape(s, 60, 54, 4, 4, 2, 0x111827);
+    time_digit(s, 70, 31, objects.home_time_segments[2]);
+    time_digit(s, 94, 31, objects.home_time_segments[3]);
     objects.home_weather_sun = shape(s, 11, 78, 13, 13, 7, 0xE09B00);
     objects.home_weather_cloud_a = shape(s, 11, 82, 12, 9, 5, 0x9AA4B2);
     objects.home_weather_cloud_b = shape(s, 18, 79, 11, 12, 6, 0x9AA4B2);

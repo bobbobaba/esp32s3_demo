@@ -2022,26 +2022,38 @@ void loadEezPage(UiPage page) {
   lastEezRenderedPage = static_cast<UiPage>(0xFF);
 }
 
+void setHomeTimeDigit(uint8_t index, char value) {
+  static const bool kDigits[10][7] = {
+      {true, true, true, true, true, true, false},
+      {false, true, true, false, false, false, false},
+      {true, true, false, true, true, false, true},
+      {true, true, true, true, false, false, true},
+      {false, true, true, false, false, true, true},
+      {true, false, true, true, false, true, true},
+      {true, false, true, true, true, true, true},
+      {true, true, true, false, false, false, false},
+      {true, true, true, true, true, true, true},
+      {true, true, true, true, false, true, true},
+  };
+  const bool valid = index < 4 && value >= '0' && value <= '9';
+  const uint8_t digit = valid ? static_cast<uint8_t>(value - '0') : 0;
+  for (uint8_t segment = 0; segment < 7; ++segment) {
+    lv_obj_t *obj = ::objects.home_time_segments[index][segment];
+    if (!obj) continue;
+    if (valid && kDigits[digit][segment]) lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+  }
+}
+
 void updateEezHomePage() {
   const String now = clockText();
-  if (::objects.home_time) {
-    lv_obj_set_style_text_font(::objects.home_time, &lv_font_montserrat_48, 0);
-    lv_obj_set_pos(::objects.home_time, 0, 25);
-    lv_obj_set_width(::objects.home_time, 58);
+  setHomeTimeDigit(0, now.length() >= 1 ? now[0] : '-');
+  setHomeTimeDigit(1, now.length() >= 2 ? now[1] : '-');
+  setHomeTimeDigit(2, now.length() >= 4 ? now[3] : '-');
+  setHomeTimeDigit(3, now.length() >= 5 ? now[4] : '-');
+  for (lv_obj_t *dot : ::objects.home_time_colon_dots) {
+    if (dot) lv_obj_clear_flag(dot, LV_OBJ_FLAG_HIDDEN);
   }
-  if (::objects.home_time_colon) {
-    lv_obj_set_style_text_font(::objects.home_time_colon, &lv_font_montserrat_32, 0);
-    lv_obj_set_pos(::objects.home_time_colon, 55, 35);
-    lv_obj_set_width(::objects.home_time_colon, 14);
-  }
-  if (::objects.home_time_minute) {
-    lv_obj_set_style_text_font(::objects.home_time_minute, &lv_font_montserrat_48, 0);
-    lv_obj_set_pos(::objects.home_time_minute, 69, 25);
-    lv_obj_set_width(::objects.home_time_minute, 58);
-  }
-  lvglSetLabel(::objects.home_time, now.length() >= 2 ? now.substring(0, 2) : String("--"));
-  lvglSetLabel(::objects.home_time_colon, ":");
-  lvglSetLabel(::objects.home_time_minute, now.length() >= 5 ? now.substring(3, 5) : String("--"));
   lvglSetLabel(::objects.home_temp, weather.valid ?
       String(displayNumber(weather.temperature)) + "C" : String("--C"));
   const bool showRain = weather.valid && ((weather.weatherCode >= 51 && weather.weatherCode <= 67) ||
