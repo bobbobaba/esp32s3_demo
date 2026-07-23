@@ -64,6 +64,19 @@ static lv_obj_t *signal_bar(lv_obj_t *parent, int x, int y, int w, int h) {
     return obj;
 }
 
+static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius, uint32_t color) {
+    lv_obj_t *obj = lv_obj_create(parent);
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_pos(obj, x, y);
+    lv_obj_set_size(obj, w, h);
+    lv_obj_set_style_radius(obj, radius, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(color), 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_border_width(obj, 0, 0);
+    lv_obj_set_style_pad_all(obj, 0, 0);
+    return obj;
+}
+
 static const lv_font_t *font_for_label(const char *text) {
     for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
         if (*p >= 0x80) return &lv_font_simsun_16_cjk;
@@ -74,7 +87,7 @@ static const lv_font_t *font_for_label(const char *text) {
 }
 
 static uint32_t color_for_label(const char *text) {
-    if (strstr(text, "TEMP")) return 0x8A5A00;
+    if (strstr(text, "26C") || strstr(text, "--C")) return 0x8A5A00;
     if (strstr(text, "CPU")) return 0x146C2E;
     if (strstr(text, "MEM")) return 0x0B5C7A;
     if (strstr(text, "OTA")) return 0x006C8F;
@@ -96,8 +109,14 @@ void create_screen_home() {
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
-    objects.home_time = label(s, "12:48", 4, 28, 122, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
-    objects.home_temp = label(s, "TEMP 26C", 11, 77, 58, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
+    objects.home_time = label(s, "12:48", 0, 24, 128, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
+    objects.home_weather_sun = shape(s, 11, 78, 13, 13, 7, 0xE09B00);
+    objects.home_weather_cloud_a = shape(s, 11, 82, 12, 9, 5, 0x9AA4B2);
+    objects.home_weather_cloud_b = shape(s, 18, 79, 11, 12, 6, 0x9AA4B2);
+    objects.home_weather_cloud_base = shape(s, 14, 87, 18, 5, 3, 0x9AA4B2);
+    objects.home_weather_rain[0] = shape(s, 16, 95, 3, 8, 2, 0x1587A6);
+    objects.home_weather_rain[1] = shape(s, 25, 95, 3, 8, 2, 0x1587A6);
+    objects.home_temp = label(s, "26C", 34, 78, 40, font_for_label("26C"), 0x000000 | color_for_label("26C"));
     label(s, "P4 MENU", 11, 96, 48, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
     label(s, "P7 AI", 16, 112, 40, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
     tick_screen_home();

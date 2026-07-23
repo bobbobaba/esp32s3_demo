@@ -448,10 +448,10 @@
             {
               "objID": "7af4dc55-6a86-4d45-8ba6-d9933a8369c3",
               "type": "LVGLLabelWidget",
-              "left": 4,
-              "top": 28,
-              "width": 122,
-              "height": 45,
+              "left": 0,
+              "top": 24,
+              "width": 128,
+              "height": 48,
               "customInputs": [],
               "customOutputs": [],
               "style": {
@@ -483,11 +483,299 @@
               "recolor": false
             },
             {
+              "objID": "home-weather-sun",
+              "type": "LVGLPanelWidget",
+              "left": 11,
+              "top": 78,
+              "width": 13,
+              "height": 13,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "home-weather-sun-style",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "home-weather-sun-local",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "bg_color": "#E09B00",
+                      "bg_opa": 255,
+                      "border_width": 0,
+                      "radius": 7,
+                      "pad_top": 0,
+                      "pad_bottom": 0,
+                      "pad_left": 0,
+                      "pad_right": 0
+                    }
+                  }
+                }
+              },
+              "groupIndex": 0,
+              "clickableFlag": false
+            },
+            {
+              "objID": "home-weather-cloud-a",
+              "type": "LVGLPanelWidget",
+              "left": 11,
+              "top": 82,
+              "width": 12,
+              "height": 9,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "home-weather-cloud-a-style",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "home-weather-cloud-a-local",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "bg_color": "#9AA4B2",
+                      "bg_opa": 255,
+                      "border_width": 0,
+                      "radius": 5,
+                      "pad_top": 0,
+                      "pad_bottom": 0,
+                      "pad_left": 0,
+                      "pad_right": 0
+                    }
+                  }
+                }
+              },
+              "groupIndex": 0,
+              "clickableFlag": false
+            },
+            {
+              "objID": "home-weather-cloud-b",
+              "type": "LVGLPanelWidget",
+              "left": 18,
+              "top": 79,
+              "width": 11,
+              "height": 12,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "home-weather-cloud-b-style",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "home-weather-cloud-b-local",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "bg_color": "#9AA4B2",
+                      "bg_opa": 255,
+                      "border_width": 0,
+                      "radius": 6,
+                      "pad_top": 0,
+                      "pad_bottom": 0,
+                      "pad_left": 0,
+                      "pad_right": 0
+                    }
+                  }
+                }
+              },
+              "groupIndex": 0,
+              "clickableFlag": false
+            },
+            {
+              "objID": "home-weather-cloud-base",
+              "type": "LVGLPanelWidget",
+              "left": 14,
+              "top": 87,
+              "width": 18,
+              "height": 5,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "home-weather-cloud-base-style",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "home-weather-cloud-base-local",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "bg_color": "#9AA4B2",
+                      "bg_opa": 255,
+                      "border_width": 0,
+                      "radius": 3,
+                      "pad_top": 0,
+                      "pad_bottom": 0,
+                      "pad_left": 0,
+                      "pad_right": 0
+                    }
+                  }
+                }
+              },
+              "groupIndex": 0,
+              "clickableFlag": false
+            },
+            {
+              "objID": "home-weather-rain-a",
+              "type": "LVGLPanelWidget",
+              "left": 16,
+              "top": 95,
+              "width": 3,
+              "height": 8,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "home-weather-rain-a-style",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "home-weather-rain-a-local",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "bg_color": "#1587A6",
+                      "bg_opa": 255,
+                      "border_width": 0,
+                      "radius": 2,
+                      "pad_top": 0,
+                      "pad_bottom": 0,
+                      "pad_left": 0,
+                      "pad_right": 0
+                    }
+                  }
+                }
+              },
+              "groupIndex": 0,
+              "clickableFlag": false
+            },
+            {
+              "objID": "home-weather-rain-b",
+              "type": "LVGLPanelWidget",
+              "left": 25,
+              "top": 95,
+              "width": 3,
+              "height": 8,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "home-weather-rain-b-style",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "CLICK_FOCUSABLE|GESTURE_BUBBLE|PRESS_LOCK|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlagType": "literal",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "home-weather-rain-b-local",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "bg_color": "#1587A6",
+                      "bg_opa": 255,
+                      "border_width": 0,
+                      "radius": 2,
+                      "pad_top": 0,
+                      "pad_bottom": 0,
+                      "pad_left": 0,
+                      "pad_right": 0
+                    }
+                  }
+                }
+              },
+              "groupIndex": 0,
+              "clickableFlag": false
+            },
+            {
               "objID": "9115cdee-9367-4d26-8ff0-b91c24664a88",
               "type": "LVGLLabelWidget",
-              "left": 11,
-              "top": 77,
-              "width": 58,
+              "left": 34,
+              "top": 78,
+              "width": 40,
               "height": 14,
               "customInputs": [],
               "customOutputs": [],
@@ -514,7 +802,7 @@
                 "objID": "417dfb9b-7fba-4a64-856f-cbcf96431631"
               },
               "groupIndex": 0,
-              "text": "TEMP 26C",
+              "text": "26C",
               "textType": "literal",
               "longMode": "CLIP",
               "recolor": false

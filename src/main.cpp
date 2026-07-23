@@ -2024,9 +2024,34 @@ void loadEezPage(UiPage page) {
 
 void updateEezHomePage() {
   const String now = clockText();
+  if (::objects.home_time) {
+    lv_obj_set_style_text_font(::objects.home_time, &lv_font_montserrat_48, 0);
+    lv_obj_set_pos(::objects.home_time, 0, 24);
+    lv_obj_set_width(::objects.home_time, 128);
+  }
   lvglSetLabel(::objects.home_time, now);
   lvglSetLabel(::objects.home_temp, weather.valid ?
-      String("TEMP ") + displayNumber(weather.temperature) + "C" : String("TEMP --C"));
+      String(displayNumber(weather.temperature)) + "C" : String("--C"));
+  const bool showRain = weather.valid && ((weather.weatherCode >= 51 && weather.weatherCode <= 67) ||
+      (weather.weatherCode >= 80 && weather.weatherCode <= 82) || weather.weatherCode >= 95);
+  const bool showCloud = weather.valid && (showRain || (weather.weatherCode >= 1 && weather.weatherCode <= 3) ||
+      weather.weatherCode == 45 || weather.weatherCode == 48);
+  const bool showSun = !weather.valid || !showCloud;
+  if (::objects.home_weather_sun) {
+    if (showSun) lv_obj_clear_flag(::objects.home_weather_sun, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(::objects.home_weather_sun, LV_OBJ_FLAG_HIDDEN);
+  }
+  lv_obj_t *cloudParts[] = {::objects.home_weather_cloud_a, ::objects.home_weather_cloud_b, ::objects.home_weather_cloud_base};
+  for (lv_obj_t *part : cloudParts) {
+    if (!part) continue;
+    if (showCloud) lv_obj_clear_flag(part, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(part, LV_OBJ_FLAG_HIDDEN);
+  }
+  for (lv_obj_t *part : ::objects.home_weather_rain) {
+    if (!part) continue;
+    if (showRain) lv_obj_clear_flag(part, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(part, LV_OBJ_FLAG_HIDDEN);
+  }
   const int cpuPercent = serverStatus.valid && serverStatus.cpuCount > 0 ?
       constrain(static_cast<int>(serverStatus.load1m * 100.0f / serverStatus.cpuCount), 0, 100) : -1;
   const int memPercent = serverStatus.valid && isfinite(serverStatus.memoryUsedPercent) ?
