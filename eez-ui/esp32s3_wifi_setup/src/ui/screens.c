@@ -18,7 +18,8 @@ static lv_obj_t *screen_base(uint32_t bg) {
     (void)bg;
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(screen, 128, 128);
-    lv_obj_set_style_bg_opa(screen, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_bg_color(screen, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(screen, 0, 0);
     lv_obj_set_style_pad_all(screen, 0, 0);
     return screen;
