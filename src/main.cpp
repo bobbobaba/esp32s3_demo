@@ -66,6 +66,7 @@ constexpr char kVoiceUploadUrl[] = SERVICE_BASE_URL "/api/v1/ai-call/audio";
 constexpr char kVoiceStreamStartUrl[] = SERVICE_BASE_URL "/api/v1/ai-call/stream/start";
 constexpr char kVoiceStreamBaseUrl[] = SERVICE_BASE_URL "/api/v1/ai-call/stream/";
 constexpr size_t kVoiceStreamChunkPcmBytes = kVoiceSampleRate * 2;
+constexpr char kAudioNamespace[] = "audio";
 constexpr unsigned long kWeatherRefreshMs = 10UL * 60UL * 1000UL;
 constexpr unsigned long kServerRefreshMs = 30UL * 1000UL;
 constexpr unsigned long kDashboardPageMs = 8UL * 1000UL;
@@ -234,6 +235,17 @@ VoiceRenderMode lastVoiceRenderMode = VoiceRenderMode::None;
 String lastVoiceRenderedStatus;
 int lastVoiceRenderedVolume = -1;
 unsigned long lastVoiceRenderedSecond = static_cast<unsigned long>(-1);
+bool settingsPageRendered = false;
+int lastSettingsRenderedVolume = -1;
+bool lastSettingsRenderedWifiConnected = false;
+bool serverPageRendered = false;
+bool lastServerRenderedValid = false;
+bool lightPageRendered = false;
+uint8_t lastLightRenderedMode = 0xFF;
+uint8_t lastLightRenderedRed = 0xFF;
+uint8_t lastLightRenderedGreen = 0xFF;
+uint8_t lastLightRenderedBlue = 0xFF;
+bool wifiSetupPageRendered = false;
 uint8_t ledRed = 0;
 uint8_t ledGreen = 0;
 uint8_t ledBlue = 0;
@@ -313,9 +325,13 @@ lv_obj_t *watchLabelMem = nullptr;
 lv_obj_t *watchLabelAi = nullptr;
 lv_obj_t *watchBarLoad = nullptr;
 lv_obj_t *watchBarMem = nullptr;
+lv_obj_t *wifiSetupLabelStatus = nullptr;
+lv_obj_t *wifiSetupLabelAp = nullptr;
+lv_obj_t *wifiSetupLabelHint = nullptr;
 
 void startConfigurationPortal(bool preserveStation = false);
 lv_obj_t *createWatchLabel(lv_obj_t *parent, const lv_font_t *font, lv_color_t color);
+void lvglSetLabel(lv_obj_t *label, const String &text);
 void renderWeather();
 bool watchFaceVisible();
 bool readMpuData();
@@ -343,6 +359,26 @@ void setUiPage(UiPage page) {
   if (previousPage != page || page != UiPage::Menu) {
     lastMenuRenderedIndex = 0xFF;
     lastMenuRenderedStart = 0xFF;
+  }
+  if (previousPage != page || page != UiPage::Settings) {
+    settingsPageRendered = false;
+    lastSettingsRenderedVolume = -1;
+  }
+  if (previousPage != page || page != UiPage::Server) {
+    serverPageRendered = false;
+  }
+  if (previousPage != page || page != UiPage::Light) {
+    lightPageRendered = false;
+    lastLightRenderedMode = 0xFF;
+    lastLightRenderedRed = 0xFF;
+    lastLightRenderedGreen = 0xFF;
+    lastLightRenderedBlue = 0xFF;
+  }
+  if (previousPage != page || page != UiPage::WifiSetup) {
+    wifiSetupPageRendered = false;
+    wifiSetupLabelStatus = nullptr;
+    wifiSetupLabelAp = nullptr;
+    wifiSetupLabelHint = nullptr;
   }
 }
 
@@ -585,6 +621,7 @@ void serviceBoardLedEffects() {
   }
   ++ledEffectStep;
   applyBoardLed(red, green, blue);
+  if (uiPageIs(UiPage::Light)) renderWeather();
 }
 
 void initializeBoardLed() {
@@ -1327,30 +1364,55 @@ void renderVoicePage() {
   lastVoiceRenderedVolume = speakerVolumePercent;
 }
 
-void renderServerStatus() {
+void renderServerOffline() {
   tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
-  if (!serverStatus.valid) {
-    drawZhText(2, 2, "服务器连接失败", 0xF800);
-    return;
-  }
+  drawDashboardHeader("服务器", 0xF800);
+  drawPanel(8, 42, 112, 36, 0x0841, 0xF800);
+  drawZhText(18, 48, "连接失败", 0xF800);
+  drawText(8, 119, "P4 BACK", 0x9CF3, 1);
+}
+
+void renderServerFrame() {
+  tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
   drawDashboardHeader("服务器", 0x07E0);
   drawPanel(4, 24, 120, 22, 0x0841, 0x2945);
   drawZhText(10, 27, "运行", 0xFFE0);
-  drawText(42, 31, uptimeText(serverStatus.uptimeSeconds), 0xFFFF, 1);
-  const float cpuPercent = serverStatus.cpuCount > 0 ? serverStatus.load1m * 100.0f / serverStatus.cpuCount : 0;
   drawPanel(4, 51, 120, 18, 0x0841, 0x2945);
   drawZhText(10, 52, "负载", 0x07FF);
-  drawText(43, 57, displayNumber(serverStatus.load1m), 0xFFFF, 1);
-  drawMeter(74, 57, 43, cpuPercent, 0x07FF);
   drawPanel(4, 74, 120, 18, 0x0841, 0x2945);
   drawZhText(10, 75, "内存", 0xF81F);
-  drawText(43, 80, displayNumber(serverStatus.memoryUsedPercent) + "%", 0xFFFF, 1);
-  drawMeter(74, 80, 43, serverStatus.memoryUsedPercent, 0xF81F);
   drawPanel(4, 97, 120, 18, 0x0841, 0x2945);
   drawZhText(10, 98, "磁盘", 0xFFE0);
+}
+
+void renderServerDynamicOnly() {
+  const float cpuPercent = serverStatus.cpuCount > 0 ? serverStatus.load1m * 100.0f / serverStatus.cpuCount : 0;
+  tftFillRect(42, 29, 78, 14, 0x0841);
+  drawText(42, 31, uptimeText(serverStatus.uptimeSeconds), 0xFFFF, 1);
+  tftFillRect(43, 56, 76, 10, 0x0841);
+  drawText(43, 57, displayNumber(serverStatus.load1m), 0xFFFF, 1);
+  drawMeter(74, 57, 43, cpuPercent, 0x07FF);
+  tftFillRect(43, 79, 76, 10, 0x0841);
+  drawText(43, 80, displayNumber(serverStatus.memoryUsedPercent) + "%", 0xFFFF, 1);
+  drawMeter(74, 80, 43, serverStatus.memoryUsedPercent, 0xF81F);
+  tftFillRect(43, 102, 76, 10, 0x0841);
   drawText(43, 103, displayNumber(serverStatus.diskUsedPercent) + "%", 0xFFFF, 1);
   drawMeter(74, 103, 43, serverStatus.diskUsedPercent, 0xFFE0);
+  tftFillRect(4, 119, 52, 8, 0x0000);
   drawText(4, 119, serverStatus.sampledAt.length() >= 16 ? serverStatus.sampledAt.substring(11, 16) : "--:--", 0x9CF3, 1);
+}
+
+void renderServerStatus() {
+  if (!serverStatus.valid) {
+    if (!serverPageRendered || lastServerRenderedValid) renderServerOffline();
+    serverPageRendered = true;
+    lastServerRenderedValid = false;
+    return;
+  }
+  if (!serverPageRendered || !lastServerRenderedValid) renderServerFrame();
+  renderServerDynamicOnly();
+  serverPageRendered = true;
+  lastServerRenderedValid = true;
 }
 
 void drawMenuRow(uint8_t y, const MenuEntry &entry, bool selected) {
@@ -1442,40 +1504,75 @@ void renderMenuPage() {
   else renderMenuDynamicOnly();
 }
 
-void renderSettingsPage() {
+void renderSettingsFrame() {
   tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
   drawDashboardHeader("SET", 0xFFE0);
   drawPanel(6, 25, 116, 22, 0x0841, 0x2945);
   drawText(12, 32, "VOL", 0xFFE0, 1);
-  drawText(43, 30, String(speakerVolumePercent) + "%", 0xFFFF, 2);
-  drawMeter(12, 51, 104,
-      (speakerVolumePercent - kSpeakerVolumeMinPercent) * 100.0f /
-          (kSpeakerVolumeMaxPercent - kSpeakerVolumeMinPercent),
-      0xFFE0);
-
   drawPanel(6, 61, 116, 22, 0x0841, 0x2945);
   drawText(12, 68, "AUTO PAGE", 0x07FF, 1);
-  drawText(82, 68, autoRotatePages ? "ON" : "OFF", autoRotatePages ? 0x07E0 : 0xF800, 1);
-
   drawPanel(6, 90, 116, 22, 0x0841, 0x2945);
-  drawText(12, 97, WiFi.status() == WL_CONNECTED ? "WIFI ON" : "WIFI OFF", 0xFFFF, 1);
   drawText(72, 97, "V" FIRMWARE_VERSION, 0x9CF3, 1);
-
   drawText(6, 119, "P4 BACK P5- P6+ P7 WIFI", 0x9CF3, 1);
 }
 
-void renderWifiSetupPage() {
-  startConfigurationPortal(true);
-  if (!lvglReady) {
-    tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
-    drawDashboardHeader("WIFI", 0x07FF);
-    drawText(8, 32, "AP: ESP32S3-Setup", 0xFFFF, 1);
-    drawText(8, 48, "OPEN:", 0x07FF, 1);
-    drawText(8, 64, kPortalUrl, 0xFFE0, 1);
-    drawText(8, 103, "P4 BACK", 0x9CF3, 1);
+void renderSettingsDynamicOnly(bool force) {
+  const bool wifiConnected = WiFi.status() == WL_CONNECTED;
+  if (force || lastSettingsRenderedVolume != speakerVolumePercent) {
+    tftFillRect(42, 28, 76, 28, 0x0841);
+    drawText(43, 30, String(speakerVolumePercent) + "%", 0xFFFF, 2);
+    drawMeter(12, 51, 104,
+        (speakerVolumePercent - kSpeakerVolumeMinPercent) * 100.0f /
+            (kSpeakerVolumeMaxPercent - kSpeakerVolumeMinPercent),
+        0xFFE0);
+    lastSettingsRenderedVolume = speakerVolumePercent;
+  }
+  if (force) {
+    tftFillRect(80, 67, 35, 10, 0x0841);
+    drawText(82, 68, autoRotatePages ? "ON" : "OFF", autoRotatePages ? 0x07E0 : 0xF800, 1);
+  }
+  if (force || lastSettingsRenderedWifiConnected != wifiConnected) {
+    tftFillRect(11, 96, 58, 10, 0x0841);
+    drawText(12, 97, wifiConnected ? "WIFI ON" : "WIFI OFF", 0xFFFF, 1);
+    lastSettingsRenderedWifiConnected = wifiConnected;
+  }
+}
+
+void renderSettingsPage() {
+  if (!settingsPageRendered) {
+    renderSettingsFrame();
+    settingsPageRendered = true;
+    renderSettingsDynamicOnly(true);
     return;
   }
+  renderSettingsDynamicOnly(false);
+}
 
+String wifiSetupStatusText() {
+  if (WiFi.status() == WL_CONNECTED) {
+    return String("STA ") + WiFi.localIP().toString();
+  }
+  return "STA OFF";
+}
+
+void renderWifiSetupFallback() {
+  if (wifiSetupPageRendered) return;
+  tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
+  drawDashboardHeader("WIFI", 0x07FF);
+  drawText(8, 32, "AP: ESP32S3-Setup", 0xFFFF, 1);
+  drawText(8, 48, "OPEN:", 0x07FF, 1);
+  drawText(8, 64, kPortalUrl, 0xFFE0, 1);
+  drawText(8, 103, "P4 BACK", 0x9CF3, 1);
+  wifiSetupPageRendered = true;
+}
+
+void updateWifiSetupLvglLabels() {
+  lvglSetLabel(wifiSetupLabelStatus, wifiSetupStatusText());
+  lvglSetLabel(wifiSetupLabelAp, "AP ESP32S3-Setup");
+  lvglSetLabel(wifiSetupLabelHint, "P4 BACK  192.168.4.1");
+}
+
+void buildWifiSetupLvglPage() {
   lvglWatchFaceBuilt = false;
   lv_obj_t *screen = lv_scr_act();
   lv_obj_clean(screen);
@@ -1486,18 +1583,30 @@ void renderWifiSetupPage() {
   lv_label_set_text(title, "WIFI SETUP");
   lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 4);
 
-  lv_obj_t *qr = lv_qrcode_create(screen, 84, lv_color_hex(0x05070b), lv_color_hex(0xffffff));
+  lv_obj_t *qr = lv_qrcode_create(screen, 80, lv_color_hex(0x05070b), lv_color_hex(0xffffff));
   lv_qrcode_update(qr, kPortalUrl, strlen(kPortalUrl));
-  lv_obj_align(qr, LV_ALIGN_TOP_MID, 0, 21);
+  lv_obj_align(qr, LV_ALIGN_TOP_MID, 0, 20);
 
-  lv_obj_t *ap = createWatchLabel(screen, &lv_font_montserrat_8, lv_color_hex(0xd6dbe6));
-  lv_label_set_text(ap, "AP ESP32S3-Setup");
-  lv_obj_align(ap, LV_ALIGN_BOTTOM_MID, 0, -13);
+  wifiSetupLabelStatus = createWatchLabel(screen, &lv_font_montserrat_8, lv_color_hex(0x7dff7a));
+  lv_obj_align(wifiSetupLabelStatus, LV_ALIGN_BOTTOM_MID, 0, -22);
 
-  lv_obj_t *hint = createWatchLabel(screen, &lv_font_montserrat_8, lv_color_hex(0x8e9bb1));
-  lv_label_set_text(hint, "P4 BACK  192.168.4.1");
-  lv_obj_align(hint, LV_ALIGN_BOTTOM_MID, 0, -3);
+  wifiSetupLabelAp = createWatchLabel(screen, &lv_font_montserrat_8, lv_color_hex(0xd6dbe6));
+  lv_obj_align(wifiSetupLabelAp, LV_ALIGN_BOTTOM_MID, 0, -13);
 
+  wifiSetupLabelHint = createWatchLabel(screen, &lv_font_montserrat_8, lv_color_hex(0x8e9bb1));
+  lv_obj_align(wifiSetupLabelHint, LV_ALIGN_BOTTOM_MID, 0, -3);
+
+  wifiSetupPageRendered = true;
+}
+
+void renderWifiSetupPage() {
+  startConfigurationPortal(true);
+  if (!lvglReady) {
+    renderWifiSetupFallback();
+    return;
+  }
+  if (!wifiSetupPageRendered) buildWifiSetupLvglPage();
+  updateWifiSetupLvglLabels();
   lv_refr_now(nullptr);
 }
 
@@ -1760,11 +1869,26 @@ void drawLedSwatch(uint8_t x, uint8_t y, uint16_t color, const char *pin, const 
   drawText(x + 24, y + 16, label, active ? 0xFFFF : color, 1);
 }
 
-void renderLightPage() {
+uint16_t currentLed565() {
+  return ((ledRed & 0xF8) << 8) | ((ledGreen & 0xFC) << 3) | (ledBlue >> 3);
+}
+
+void renderLightFrame() {
   tftFillRect(0, 0, kTftWidth, kTftHeight, 0x0000);
   drawDashboardHeader("LED", 0x07FF);
+  drawText(6, 84, "P6 BREATH P7 FLASH", 0xFFE0, 1);
+}
+
+void renderLightDynamicOnly(bool force) {
+  const bool changed = force ||
+      lastLightRenderedMode != static_cast<uint8_t>(ledMode) ||
+      lastLightRenderedRed != ledRed ||
+      lastLightRenderedGreen != ledGreen ||
+      lastLightRenderedBlue != ledBlue;
+  if (!changed) return;
   const bool off = ledRed == 0 && ledGreen == 0 && ledBlue == 0;
-  drawFilledCircle(64, 47, 21, ((ledRed & 0xF8) << 8) | ((ledGreen & 0xFC) << 3) | (ledBlue >> 3));
+  tftFillRect(36, 24, 56, 58, 0x0000);
+  drawFilledCircle(64, 47, 21, currentLed565());
   drawFilledCircle(64, 47, 14, off ? 0x0841 : 0xFFFF);
   if (ledMode == LedMode::Rainbow) {
     drawText(42, 73, "RAINBOW", 0x07FF, 1);
@@ -1777,7 +1901,20 @@ void renderLightPage() {
   }
   drawLedSwatch(6, 94, 0x0000, "P4", "OFF", ledMode == LedMode::Off);
   drawLedSwatch(66, 94, 0x07FF, "P5", "RAIN", ledMode == LedMode::Rainbow);
-  drawText(6, 84, "P6 BREATH P7 FLASH", 0xFFE0, 1);
+  lastLightRenderedMode = static_cast<uint8_t>(ledMode);
+  lastLightRenderedRed = ledRed;
+  lastLightRenderedGreen = ledGreen;
+  lastLightRenderedBlue = ledBlue;
+}
+
+void renderLightPage() {
+  if (!lightPageRendered) {
+    renderLightFrame();
+    lightPageRendered = true;
+    renderLightDynamicOnly(true);
+    return;
+  }
+  renderLightDynamicOnly(false);
 }
 
 void lvglSetLabel(lv_obj_t *label, const String &text) {
@@ -2236,11 +2373,26 @@ size_t amplifyMonoToStereoPcm16(const uint8_t *input, size_t inputBytes, uint8_t
   return frameCount * sizeof(int16_t) * 2;
 }
 
+void loadAudioSettings() {
+  preferences.begin(kAudioNamespace, true);
+  speakerVolumePercent = preferences.getInt("volume", speakerVolumePercent);
+  preferences.end();
+  speakerVolumePercent = constrain(speakerVolumePercent, kSpeakerVolumeMinPercent, kSpeakerVolumeMaxPercent);
+}
+
+void saveAudioSettings() {
+  preferences.begin(kAudioNamespace, false);
+  preferences.putInt("volume", speakerVolumePercent);
+  preferences.end();
+}
+
 void adjustSpeakerVolume(int deltaPercent) {
+  const int previousVolume = speakerVolumePercent;
   speakerVolumePercent = constrain(
       speakerVolumePercent + deltaPercent,
       kSpeakerVolumeMinPercent,
       kSpeakerVolumeMaxPercent);
+  if (speakerVolumePercent != previousVolume) saveAudioSettings();
 }
 
 void endSpeaker() {
@@ -3188,6 +3340,7 @@ void setup() {
   initializeButtons();
   initializeBoardLed();
   initializeMpu6050();
+  loadAudioSettings();
 #if defined(PROVISION_SSID) && defined(PROVISION_PASSWORD)
   provisionCredentials();
 #endif

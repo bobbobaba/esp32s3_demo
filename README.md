@@ -30,7 +30,7 @@
 ## 最新更新
 
 - 完整更新记录见：[CHANGELOG.md](CHANGELOG.md)
-- 最新一次更新：拆分菜单页框架和列表动态刷新，菜单上下选择时减少整屏重画。
+- 最新一次更新：拆分设置页、服务器页、LED 页、Wi-Fi 页动态刷新，并增加音量持久化和开源文档。
 - UI 迁移进度：已完成 `UiPage` 状态机和 `dispatchButton()` 按键调度，正在拆分页面静态布局和动态刷新。
 
 ## 当前功能更新摘要
@@ -44,6 +44,24 @@
 - 新增 `docs/ui-flow.md`，用于后续迁移到 EEZ Studio/EEZ Flow。
 - 公开仓库版本已脱敏：不包含真实服务器地址、Wi-Fi 密码、服务账号密码、token 或私钥。
 
+## 快速开始
+
+1. 安装 PlatformIO。
+2. 按 [docs/hardware-wiring.md](docs/hardware-wiring.md) 完成接线。
+3. 编译固件：
+
+```bash
+pio run
+```
+
+4. 连接 ESP32-S3 串口并烧录：
+
+```bash
+pio run --target upload --upload-port /dev/ttyACM0
+```
+
+5. 首次启动后连接 `ESP32S3-Setup` 热点，手机打开 `http://192.168.4.1/` 配网。
+
 ## 项目框架
 
 ```text
@@ -51,6 +69,9 @@ esp32s3_wifi_setup/
 ├── boards/
 │   └── esp32-s3-n16r8-qspi.json      # 自定义 ESP32-S3 N16R8 QSPI 板卡配置
 ├── docs/
+│   ├── eez-studio.md                 # EEZ Studio/LVGL 接入计划
+│   ├── hardware-wiring.md            # 硬件接线说明
+│   ├── ota-api.md                    # OTA 接口设计
 │   └── ui-flow.md                    # 页面/按钮/状态机蓝图
 ├── src/
 │   ├── main.cpp                      # 主固件逻辑
@@ -269,13 +290,21 @@ build_flags =
 
 1. 已完成：用 `UiPage` 状态机替换多个 `showXxxPage` 布尔变量。
 2. 已完成：把按键统一成 `dispatchButton()`。
-3. 进行中：把每个页面拆成静态布局和动态数据刷新；AI 通话页已拆分，MPU 页面已有动态刷新基础。
+3. 进行中：把每个页面拆成静态布局和动态数据刷新；AI 通话页、菜单页、设置页、服务器页、LED 页、Wi-Fi 页已拆分或缓存，MPU 页面已有动态刷新基础。
 4. 使用 EEZ Studio/EEZ Flow 重新设计界面和页面跳转关系。
 5. 导出 LVGL 页面代码，逐步替换手写 UI。
 
 页面关系图和迁移蓝图见：
 
 [docs/ui-flow.md](docs/ui-flow.md)
+
+EEZ Studio 接入说明见：
+
+[docs/eez-studio.md](docs/eez-studio.md)
+
+OTA 接口设计见：
+
+[docs/ota-api.md](docs/ota-api.md)
 
 ## 许可和资源说明
 

@@ -195,6 +195,10 @@ Suggested EEZ actions:
 3. In progress: move each page's static layout and dynamic refresh into separate functions.
    - Done: AI call page frame/content split, recording timer now refreshes only the content area.
    - Done: menu page frame/list split, selection changes redraw only affected rows when the window does not scroll.
+   - Done: settings page frame/dynamic split, volume changes redraw only the value and meter.
+   - Done: server page frame/dynamic split, status refresh redraws only value and meter areas.
+   - Done: LED page frame/dynamic split, effect preview redraws only the light content area.
+   - Done: Wi-Fi setup page reuses LVGL objects after first render.
    - Existing: MPU pages use dynamic refresh helpers for live values.
 4. Build EEZ Studio screens matching this document.
 5. Export LVGL screen code and connect generated callbacks to existing services.
