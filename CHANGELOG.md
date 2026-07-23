@@ -4,6 +4,13 @@
 
 ## 2026-07-23
 
+### 接入 EEZ 生成 UI 到固件
+
+- 将 EEZ 导出的 LVGL 页面代码接入 `src/ui`，主固件默认启用 EEZ UI 基础页面。
+- 新增 `UiPage` 到 EEZ `ScreensEnum` 的映射：首页、菜单、AI 通话、设置、服务器、LED、Wi-Fi 配网和 MPU 数据页优先使用 EEZ 页面。
+- 将天气、服务器、AI 状态、音量、OTA、Wi-Fi、LED 和 MPU 数据同步到 EEZ 动态 label。
+- MPU 水平仪、姿态角、里程计和事件页暂时保留原手写 UI，作为复杂传感器页面的稳定兜底。
+
 ### 增加 EEZ Studio 可视化 UI 草图
 
 - 新增 `eez-ui/esp32s3_wifi_setup/esp32s3_wifi_setup.eez-project`，画布尺寸设为 128x128。

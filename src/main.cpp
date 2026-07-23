@@ -13,6 +13,7 @@
 #include <time.h>
 
 #include "mi_style_watchface.h"
+#include "ui/ui.h"
 
 namespace {
 
@@ -83,6 +84,7 @@ constexpr unsigned long kStillDetectMs = 2500UL;
 constexpr unsigned long kFallCooldownMs = 2500UL;
 constexpr unsigned long kMpuLedPulseMs = 900UL;
 constexpr float kOdometerStepMeters = 0.70f;
+constexpr bool kUseEezUi = true;
 #ifndef FIRMWARE_VERSION
 #define FIRMWARE_VERSION "1.0.0"
 #endif
@@ -303,6 +305,8 @@ unsigned long nextLedEffectMs = 0;
 uint16_t ledEffectStep = 0;
 SensorPageId lastDynamicSensorPage = SensorPageId::None;
 bool lvglReady = false;
+bool eezUiInitialized = false;
+UiPage lastEezRenderedPage = static_cast<UiPage>(0xFF);
 bool lvglWatchFaceBuilt = false;
 lv_disp_draw_buf_t lvglDrawBuffer;
 lv_disp_drv_t lvglDisplayDriver;
@@ -338,6 +342,9 @@ void lvglSetLabel(lv_obj_t *label, const String &text);
 void renderWeather();
 bool watchFaceVisible();
 bool readMpuData();
+bool eezPageVisible();
+bool renderEezPage();
+void loadEezPage(UiPage page);
 
 bool uiPageIs(UiPage page) {
   return currentUiPage == page;
@@ -384,6 +391,7 @@ void setUiPage(UiPage page) {
     wifiSetupLabelAp = nullptr;
     wifiSetupLabelHint = nullptr;
   }
+  loadEezPage(page);
 }
 
 #if defined(PROVISION_SSID) && defined(PROVISION_PASSWORD)
@@ -534,6 +542,11 @@ void initializeLvglDisplay() {
   lvglDisplayDriver.draw_buf = &lvglDrawBuffer;
   lv_disp_drv_register(&lvglDisplayDriver);
   lvglReady = true;
+  if (kUseEezUi) {
+    ::ui_init();
+    eezUiInitialized = true;
+    loadEezPage(currentUiPage);
+  }
 }
 
 void initializeButtons() {
@@ -1928,6 +1941,186 @@ void lvglSetLabel(lv_obj_t *label, const String &text) {
   if (label) lv_label_set_text(label, text.c_str());
 }
 
+String fitText(String text, size_t maxLength) {
+  text.replace("\n", " ");
+  if (text.length() <= maxLength) return text;
+  return text.substring(0, maxLength);
+}
+
+bool eezScreenForPage(UiPage page, ScreensEnum &screen) {
+  if (page == UiPage::Watch) {
+    screen = SCREEN_ID_HOME;
+    return true;
+  }
+  if (page == UiPage::Menu) {
+    screen = SCREEN_ID_MENU;
+    return true;
+  }
+  if (page == UiPage::Voice) {
+    screen = SCREEN_ID_AI_CALL;
+    return true;
+  }
+  if (page == UiPage::Settings) {
+    screen = SCREEN_ID_SETTINGS;
+    return true;
+  }
+  if (page == UiPage::Server) {
+    screen = SCREEN_ID_SERVER;
+    return true;
+  }
+  if (page == UiPage::Light) {
+    screen = SCREEN_ID_LED;
+    return true;
+  }
+  if (page == UiPage::WifiSetup) {
+    screen = SCREEN_ID_WI_FI_SETUP;
+    return true;
+  }
+  if (page == UiPage::MpuData) {
+    screen = SCREEN_ID_MPU_DATA;
+    return true;
+  }
+  return false;
+}
+
+bool eezPageVisible() {
+  ScreensEnum screen;
+  return kUseEezUi && eezUiInitialized && eezScreenForPage(currentUiPage, screen);
+}
+
+void clearLegacyLvglWatchObjects() {
+  lvglWatchFaceBuilt = false;
+  watchRoot = nullptr;
+  watchBg = nullptr;
+  watchTimePlate = nullptr;
+  watchInfoPlate = nullptr;
+  watchArcTemp = nullptr;
+  watchArcMem = nullptr;
+  watchLabelHour = nullptr;
+  watchLabelMinute = nullptr;
+  watchLabelDate = nullptr;
+  watchLabelWeather = nullptr;
+  watchLabelNet = nullptr;
+  watchLabelLoad = nullptr;
+  watchLabelMem = nullptr;
+  watchLabelAi = nullptr;
+  watchBarLoad = nullptr;
+  watchBarMem = nullptr;
+}
+
+void loadEezPage(UiPage page) {
+  if (!kUseEezUi || !eezUiInitialized) return;
+  ScreensEnum screen;
+  if (!eezScreenForPage(page, screen)) return;
+  clearLegacyLvglWatchObjects();
+  ::loadScreen(screen);
+  lastEezRenderedPage = static_cast<UiPage>(0xFF);
+}
+
+void updateEezHomePage() {
+  const String now = clockText();
+  lvglSetLabel(::objects.home_time, now);
+  lvglSetLabel(::objects.home_temp, weather.valid ?
+      String("TEMP ") + displayNumber(weather.temperature) + "C" : String("TEMP --C"));
+  const int cpuPercent = serverStatus.valid && serverStatus.cpuCount > 0 ?
+      constrain(static_cast<int>(serverStatus.load1m * 100.0f / serverStatus.cpuCount), 0, 100) : -1;
+  const int memPercent = serverStatus.valid && isfinite(serverStatus.memoryUsedPercent) ?
+      constrain(static_cast<int>(serverStatus.memoryUsedPercent), 0, 100) : -1;
+  lvglSetLabel(::objects.home_cpu, cpuPercent >= 0 ? String("CPU ") + cpuPercent + "%" : String("CPU --"));
+  lvglSetLabel(::objects.home_mem, memPercent >= 0 ? String("MEM ") + memPercent + "%" : String("MEM --"));
+}
+
+void updateEezMenuPage() {
+  const uint8_t start = menuWindowStart();
+  for (uint8_t row = 0; row < 4; ++row) {
+    const uint8_t itemIndex = start + row;
+    if (!::objects.menu_rows[row]) continue;
+    if (itemIndex >= kMenuEntryCount) {
+      lvglSetLabel(::objects.menu_rows[row], "");
+      continue;
+    }
+    const String prefix = itemIndex == menuSelectedIndex ? "> " : "  ";
+    lvglSetLabel(::objects.menu_rows[row], prefix + kMenuEntries[itemIndex].label);
+    lv_obj_set_style_text_color(::objects.menu_rows[row],
+        lv_color_hex(itemIndex == menuSelectedIndex ? 0xFFFFFF : 0xD6DBE6), 0);
+  }
+}
+
+void updateEezVoicePage() {
+  String status = voiceStatus;
+  if (voiceRecording) status = voiceCallMode ? "LISTEN" : "REC";
+  else if (voiceUploadPending || voiceStopRequested || voiceStatus == "UP") status = "UPLOAD";
+  else if (voiceStatus == "SPEAK") status = "SPEAK";
+  else if (voiceStatus == "OK") status = "DONE";
+  lvglSetLabel(::objects.ai_status, status);
+  lvglSetLabel(::objects.ai_you, voiceTranscript.isEmpty() ? String("YOU: ...") : String("YOU: ") + fitText(voiceTranscript, 16));
+  lvglSetLabel(::objects.ai_reply, voiceReply.isEmpty() ? String("AI: ...") : String("AI: ") + fitText(voiceReply, 18));
+}
+
+void updateEezSettingsPage() {
+  lvglSetLabel(::objects.settings_volume, String("VOL ") + speakerVolumePercent + "%");
+  lvglSetLabel(::objects.settings_ota, fitText(otaStatus, 12));
+  lvglSetLabel(::objects.settings_wifi, WiFi.status() == WL_CONNECTED ? "WIFI ON" : "WIFI OFF");
+}
+
+void updateEezServerPage() {
+  if (!serverStatus.valid) {
+    lvglSetLabel(::objects.server_uptime, "SERVER OFF");
+    lvglSetLabel(::objects.server_load, "LOAD --");
+    lvglSetLabel(::objects.server_mem, "MEM --%");
+    lvglSetLabel(::objects.server_disk, "DISK --%");
+    return;
+  }
+  lvglSetLabel(::objects.server_uptime, String("UP ") + uptimeText(serverStatus.uptimeSeconds));
+  lvglSetLabel(::objects.server_load, String("LOAD ") + displayNumber(serverStatus.load1m));
+  lvglSetLabel(::objects.server_mem, String("MEM ") + displayNumber(serverStatus.memoryUsedPercent) + "%");
+  lvglSetLabel(::objects.server_disk, String("DISK ") + displayNumber(serverStatus.diskUsedPercent) + "%");
+}
+
+void updateEezLightPage() {
+  if (ledMode == LedMode::Rainbow) lvglSetLabel(::objects.led_mode, "RAINBOW");
+  else if (ledMode == LedMode::Breathe) lvglSetLabel(::objects.led_mode, "BREATHE");
+  else if (ledMode == LedMode::Flash) lvglSetLabel(::objects.led_mode, "FLASH");
+  else lvglSetLabel(::objects.led_mode, "OFF");
+}
+
+void updateEezWifiPage() {
+  lvglSetLabel(::objects.wifi_status, wifiSetupStatusText());
+}
+
+void updateEezMpuDataPage() {
+  if (!mpuReady || !mpuData.valid) {
+    lvglSetLabel(::objects.mpu_acc, "MPU6050 OFF");
+    lvglSetLabel(::objects.mpu_gyro, "CHECK SDA/SCL");
+    return;
+  }
+  lvglSetLabel(::objects.mpu_acc,
+      String("ACC X ") + displayNumber(mpuData.ax) + " Y " + displayNumber(mpuData.ay) + "\nZ " + displayNumber(mpuData.az));
+  lvglSetLabel(::objects.mpu_gyro,
+      String("GYR X ") + displayNumber(mpuData.gx) + " Y " + displayNumber(mpuData.gy) + "\nZ " + displayNumber(mpuData.gz));
+}
+
+bool renderEezPage() {
+  if (!eezPageVisible()) return false;
+  ScreensEnum screen;
+  if (!eezScreenForPage(currentUiPage, screen)) return false;
+  if (lastEezRenderedPage != currentUiPage) {
+    ::loadScreen(screen);
+    lastEezRenderedPage = currentUiPage;
+  }
+  if (uiPageIs(UiPage::Watch)) updateEezHomePage();
+  else if (uiPageIs(UiPage::Menu)) updateEezMenuPage();
+  else if (uiPageIs(UiPage::Voice)) updateEezVoicePage();
+  else if (uiPageIs(UiPage::Settings)) updateEezSettingsPage();
+  else if (uiPageIs(UiPage::Server)) updateEezServerPage();
+  else if (uiPageIs(UiPage::Light)) updateEezLightPage();
+  else if (uiPageIs(UiPage::WifiSetup)) updateEezWifiPage();
+  else if (uiPageIs(UiPage::MpuData)) updateEezMpuDataPage();
+  ::ui_tick();
+  lv_refr_now(nullptr);
+  return true;
+}
+
 lv_obj_t *createWatchLabel(lv_obj_t *parent, const lv_font_t *font, lv_color_t color) {
   lv_obj_t *label = lv_label_create(parent);
   lv_obj_set_style_text_font(label, font, 0);
@@ -2101,6 +2294,7 @@ void renderWatchFace() {
 }
 
 void renderWeather() {
+  if (renderEezPage()) return;
   if (uiPageIs(UiPage::Menu)) {
     renderMenuPage();
     return;
@@ -3119,7 +3313,7 @@ void serviceLvgl() {
   if (lastTickMs == 0) lastTickMs = now;
   lv_tick_inc(now - lastTickMs);
   lastTickMs = now;
-  if (watchFaceVisible()) lv_timer_handler();
+  if (eezPageVisible() || watchFaceVisible()) lv_timer_handler();
 }
 
 void closeAllPages() {
