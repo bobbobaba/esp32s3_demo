@@ -191,8 +191,8 @@ Suggested EEZ actions:
 ## Refactor Steps
 
 1. Done: add `UiPage` and keep old render functions, replacing page booleans.
-2. Next: add a central `dispatchButton(index)` function.
-3. Move each page's static layout and dynamic refresh into separate functions.
+2. Done: add a central `dispatchButton(index)` function.
+3. Next: move each page's static layout and dynamic refresh into separate functions.
 4. Build EEZ Studio screens matching this document.
 5. Export LVGL screen code and connect generated callbacks to existing services.
 6. Delete old raw drawing pages after EEZ-generated screens are stable.

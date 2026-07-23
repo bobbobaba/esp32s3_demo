@@ -2797,6 +2797,197 @@ void openMenuItem(MenuItem item) {
   }
 }
 
+void exitVoicePage() {
+  stopVoiceCallMode();
+  voiceUploadPending = false;
+  voiceStreamActive = false;
+  voiceStreamFailed = false;
+  voiceStreamSessionId = "";
+  releaseVoiceBuffer();
+  voiceResultHoldUntilMs = 0;
+  closeAllPages();
+  nextWatchFaceRefreshMs = 0;
+}
+
+void dispatchVoiceRecordingButton(size_t index) {
+  if (index == 0) {
+    stopVoiceCallMode();
+    voiceRecording = false;
+    voiceUploadPending = false;
+    endMicrophone();
+    releaseVoiceBuffer();
+    closeAllPages();
+    voiceStatus = "READY";
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    adjustSpeakerVolume(-kSpeakerVolumeStepPercent);
+  } else if (index == 2) {
+    adjustSpeakerVolume(kSpeakerVolumeStepPercent);
+  } else if (index == 3) {
+    voiceStopRequested = true;
+  }
+  renderWeather();
+}
+
+void dispatchVoicePageButton(size_t index) {
+  if (index == 0) {
+    exitVoicePage();
+  } else if (index == 1) {
+    adjustSpeakerVolume(-kSpeakerVolumeStepPercent);
+  } else if (index == 2) {
+    adjustSpeakerVolume(kSpeakerVolumeStepPercent);
+  } else if (!voiceUploadPending && voiceStatus != "SPEAK") {
+    startVoiceRecording(true);
+    return;
+  }
+  renderWeather();
+}
+
+void dispatchMenuButton(size_t index) {
+  voiceResultHoldUntilMs = 0;
+  if (index == 0) {
+    closeAllPages();
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    menuSelectedIndex = menuSelectedIndex == 0 ? kMenuEntryCount - 1 : menuSelectedIndex - 1;
+  } else if (index == 2) {
+    menuSelectedIndex = (menuSelectedIndex + 1) % kMenuEntryCount;
+  } else {
+    openMenuItem(kMenuEntries[menuSelectedIndex].item);
+    if (voiceRecording || voiceUploadPending) return;
+  }
+  nextDashboardPageMs = millis() + kDashboardPageMs;
+  renderWeather();
+}
+
+void dispatchSettingsButton(size_t index) {
+  if (index == 0) {
+    closeAllPages();
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    adjustSpeakerVolume(-kSpeakerVolumeStepPercent);
+  } else if (index == 2) {
+    adjustSpeakerVolume(kSpeakerVolumeStepPercent);
+  } else {
+    setUiPage(UiPage::WifiSetup);
+    startConfigurationPortal(true);
+    nextWatchFaceRefreshMs = 0;
+  }
+  renderWeather();
+}
+
+void dispatchWifiSetupButton(size_t index) {
+  if (index == 0) setUiPage(UiPage::Settings);
+  renderWeather();
+}
+
+void dispatchMpuButton(size_t index) {
+  if (index == 0) {
+    closeAllPages();
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 3) {
+    calibrateMpuZero();
+  }
+  renderWeather();
+}
+
+void dispatchOdometerButton(size_t index) {
+  if (index == 0) {
+    closeAllPages();
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    odometerSteps = 0;
+    lastOdometerAccel = NAN;
+    lastOdometerStepMs = 0;
+  } else if (index == 3) {
+    calibrateMpuZero();
+    odometerSteps = 0;
+    lastOdometerAccel = NAN;
+  }
+  renderWeather();
+}
+
+void dispatchMotionButton(size_t index) {
+  if (index == 0) {
+    closeAllPages();
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    shakeCount = 0;
+    raiseCount = 0;
+    fallCount = 0;
+    mpuPeakAccel = 0.0f;
+    mpuPeakGyro = 0.0f;
+    mpuGestureStatus = "READY";
+  } else if (index == 2) {
+    mpuLedFeedback = !mpuLedFeedback;
+    saveMpuSettings();
+    if (!mpuLedFeedback && !uiPageIs(UiPage::Light) && ledMode == LedMode::Flash) {
+      mpuLedPulseUntilMs = 0;
+      setLedMode(LedMode::Off);
+    }
+  } else if (index == 3) {
+    calibrateMpuZero();
+  }
+  renderWeather();
+}
+
+void dispatchLightButton(size_t index) {
+  mpuLedPulseUntilMs = 0;
+  if (index == 0) {
+    setLedMode(LedMode::Off);
+    closeAllPages();
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    setLedMode(LedMode::Rainbow);
+  } else if (index == 2) {
+    setLedMode(LedMode::Breathe);
+  } else {
+    setLedMode(LedMode::Flash);
+  }
+  renderWeather();
+}
+
+void dispatchHomeButton(size_t index) {
+  voiceResultHoldUntilMs = 0;
+  if (index == 0 || index == 2) {
+    closeAllPages();
+    setUiPage(UiPage::Menu);
+    nextWatchFaceRefreshMs = 0;
+  } else if (index == 1) {
+    openMenuItem(MenuItem::Server);
+  } else if (!voiceUploadPending) {
+    closeAllPages();
+    startVoiceRecording(true);
+    return;
+  }
+  nextDashboardPageMs = millis() + kDashboardPageMs;
+  renderWeather();
+}
+
+void dispatchButton(size_t index) {
+  if (voiceRecording) {
+    dispatchVoiceRecordingButton(index);
+  } else if (uiPageIs(UiPage::Voice) || voiceResultHeld()) {
+    dispatchVoicePageButton(index);
+  } else if (uiPageIs(UiPage::Menu)) {
+    dispatchMenuButton(index);
+  } else if (uiPageIs(UiPage::Settings)) {
+    dispatchSettingsButton(index);
+  } else if (uiPageIs(UiPage::WifiSetup)) {
+    dispatchWifiSetupButton(index);
+  } else if (uiPageIs(UiPage::MpuData) || uiPageIs(UiPage::MpuLevel) || uiPageIs(UiPage::MpuAngle)) {
+    dispatchMpuButton(index);
+  } else if (uiPageIs(UiPage::MpuOdometer)) {
+    dispatchOdometerButton(index);
+  } else if (uiPageIs(UiPage::MpuMotion)) {
+    dispatchMotionButton(index);
+  } else if (uiPageIs(UiPage::Light)) {
+    dispatchLightButton(index);
+  } else {
+    dispatchHomeButton(index);
+  }
+}
+
 void serviceButtons() {
   for (size_t index = 0; index < 4; ++index) {
     const bool current = digitalRead(kButtonPins[index]);
@@ -2808,210 +2999,7 @@ void serviceButtons() {
       continue;
     }
     buttonStableState[index] = current;
-    if (current != LOW) continue;
-
-    if (voiceRecording) {
-      if (index == 0) {
-        stopVoiceCallMode();
-        voiceRecording = false;
-        voiceUploadPending = false;
-        endMicrophone();
-        releaseVoiceBuffer();
-        closeAllPages();
-        voiceStatus = "READY";
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        adjustSpeakerVolume(-kSpeakerVolumeStepPercent);
-      } else if (index == 2) {
-        adjustSpeakerVolume(kSpeakerVolumeStepPercent);
-      } else if (index == 3) {
-        voiceStopRequested = true;
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::Voice) || voiceResultHeld()) {
-      if (index == 0) {
-        stopVoiceCallMode();
-        voiceUploadPending = false;
-        voiceStreamActive = false;
-        voiceStreamFailed = false;
-        voiceStreamSessionId = "";
-        releaseVoiceBuffer();
-        voiceResultHoldUntilMs = 0;
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        adjustSpeakerVolume(-kSpeakerVolumeStepPercent);
-      } else if (index == 2) {
-        adjustSpeakerVolume(kSpeakerVolumeStepPercent);
-      } else if (!voiceUploadPending && voiceStatus != "SPEAK") {
-        startVoiceRecording(true);
-        continue;
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::Menu)) {
-      voiceResultHoldUntilMs = 0;
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        menuSelectedIndex = menuSelectedIndex == 0 ? kMenuEntryCount - 1 : menuSelectedIndex - 1;
-      } else if (index == 2) {
-        menuSelectedIndex = (menuSelectedIndex + 1) % kMenuEntryCount;
-      } else {
-        openMenuItem(kMenuEntries[menuSelectedIndex].item);
-        if (voiceRecording || voiceUploadPending) continue;
-      }
-      nextDashboardPageMs = millis() + kDashboardPageMs;
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::Settings)) {
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        adjustSpeakerVolume(-kSpeakerVolumeStepPercent);
-      } else if (index == 2) {
-        adjustSpeakerVolume(kSpeakerVolumeStepPercent);
-      } else {
-        setUiPage(UiPage::WifiSetup);
-        startConfigurationPortal(true);
-        nextWatchFaceRefreshMs = 0;
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::WifiSetup)) {
-      if (index == 0) {
-        setUiPage(UiPage::Settings);
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::MpuData)) {
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 3) {
-        calibrateMpuZero();
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::MpuLevel)) {
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 3) {
-        calibrateMpuZero();
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::MpuAngle)) {
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 3) {
-        calibrateMpuZero();
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::MpuOdometer)) {
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        odometerSteps = 0;
-        lastOdometerAccel = NAN;
-        lastOdometerStepMs = 0;
-      } else if (index == 3) {
-        calibrateMpuZero();
-        odometerSteps = 0;
-        lastOdometerAccel = NAN;
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::MpuMotion)) {
-      if (index == 0) {
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        shakeCount = 0;
-        raiseCount = 0;
-        fallCount = 0;
-        mpuPeakAccel = 0.0f;
-        mpuPeakGyro = 0.0f;
-        mpuGestureStatus = "READY";
-      } else if (index == 2) {
-        mpuLedFeedback = !mpuLedFeedback;
-        saveMpuSettings();
-        if (!mpuLedFeedback && !uiPageIs(UiPage::Light) && ledMode == LedMode::Flash) {
-          mpuLedPulseUntilMs = 0;
-          setLedMode(LedMode::Off);
-        }
-      } else if (index == 3) {
-        calibrateMpuZero();
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (uiPageIs(UiPage::Light)) {
-      if (index == 0) {
-        setLedMode(LedMode::Off);
-        mpuLedPulseUntilMs = 0;
-        closeAllPages();
-        nextWatchFaceRefreshMs = 0;
-      } else if (index == 1) {
-        mpuLedPulseUntilMs = 0;
-        setLedMode(LedMode::Rainbow);
-      } else if (index == 2) {
-        mpuLedPulseUntilMs = 0;
-        setLedMode(LedMode::Breathe);
-      } else {
-        mpuLedPulseUntilMs = 0;
-        setLedMode(LedMode::Flash);
-      }
-      renderWeather();
-      continue;
-    }
-
-    if (index == 0) {
-      voiceResultHoldUntilMs = 0;
-      setUiPage(UiPage::Menu);
-      nextWatchFaceRefreshMs = 0;
-    } else if (index == 1) {
-      voiceResultHoldUntilMs = 0;
-      openMenuItem(MenuItem::Server);
-    } else if (index == 2) {
-      voiceResultHoldUntilMs = 0;
-      closeAllPages();
-      setUiPage(UiPage::Menu);
-    } else {
-      if (!voiceUploadPending) {
-        closeAllPages();
-        startVoiceRecording(true);
-        continue;
-      }
-    }
-    nextDashboardPageMs = millis() + kDashboardPageMs;
-    renderWeather();
+    if (current == LOW) dispatchButton(index);
   }
 }
 
