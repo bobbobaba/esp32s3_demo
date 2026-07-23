@@ -1938,7 +1938,16 @@ void renderLightPage() {
 }
 
 void lvglSetLabel(lv_obj_t *label, const String &text) {
-  if (label) lv_label_set_text(label, text.c_str());
+  if (!label) return;
+  bool hasCjk = false;
+  for (size_t index = 0; index < text.length(); ++index) {
+    if (static_cast<uint8_t>(text[index]) >= 0x80) {
+      hasCjk = true;
+      break;
+    }
+  }
+  lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : LV_FONT_DEFAULT, 0);
+  lv_label_set_text(label, text.c_str());
 }
 
 String fitText(String text, size_t maxLength) {
