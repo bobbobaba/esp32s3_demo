@@ -2026,10 +2026,22 @@ void updateEezHomePage() {
   const String now = clockText();
   if (::objects.home_time) {
     lv_obj_set_style_text_font(::objects.home_time, &lv_font_montserrat_48, 0);
-    lv_obj_set_pos(::objects.home_time, 0, 24);
-    lv_obj_set_width(::objects.home_time, 128);
+    lv_obj_set_pos(::objects.home_time, 0, 25);
+    lv_obj_set_width(::objects.home_time, 58);
   }
-  lvglSetLabel(::objects.home_time, now);
+  if (::objects.home_time_colon) {
+    lv_obj_set_style_text_font(::objects.home_time_colon, &lv_font_montserrat_32, 0);
+    lv_obj_set_pos(::objects.home_time_colon, 55, 35);
+    lv_obj_set_width(::objects.home_time_colon, 14);
+  }
+  if (::objects.home_time_minute) {
+    lv_obj_set_style_text_font(::objects.home_time_minute, &lv_font_montserrat_48, 0);
+    lv_obj_set_pos(::objects.home_time_minute, 69, 25);
+    lv_obj_set_width(::objects.home_time_minute, 58);
+  }
+  lvglSetLabel(::objects.home_time, now.length() >= 2 ? now.substring(0, 2) : String("--"));
+  lvglSetLabel(::objects.home_time_colon, ":");
+  lvglSetLabel(::objects.home_time_minute, now.length() >= 5 ? now.substring(3, 5) : String("--"));
   lvglSetLabel(::objects.home_temp, weather.valid ?
       String(displayNumber(weather.temperature)) + "C" : String("--C"));
   const bool showRain = weather.valid && ((weather.weatherCode >= 51 && weather.weatherCode <= 67) ||

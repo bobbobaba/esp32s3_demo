@@ -32,6 +32,8 @@ typedef struct _objects_t {
     lv_obj_t *wi_fi_setup;
     lv_obj_t *mpu_data;
     lv_obj_t *home_time;
+    lv_obj_t *home_time_colon;
+    lv_obj_t *home_time_minute;
     lv_obj_t *home_temp;
     lv_obj_t *home_cpu;
     lv_obj_t *home_mem;

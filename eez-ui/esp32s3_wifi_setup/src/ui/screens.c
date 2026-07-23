@@ -81,7 +81,8 @@ static const lv_font_t *font_for_label(const char *text) {
     for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
         if (*p >= 0x80) return &lv_font_simsun_16_cjk;
     }
-    if (strcmp(text, "12:48") == 0) return &lv_font_montserrat_48;
+    if (strcmp(text, "12") == 0 || strcmp(text, "48") == 0) return &lv_font_montserrat_48;
+    if (strcmp(text, ":") == 0) return &lv_font_montserrat_32;
     if (strcmp(text, "LISTEN") == 0) return &lv_font_montserrat_12;
     return &lv_font_montserrat_12;
 }
@@ -109,7 +110,9 @@ void create_screen_home() {
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
-    objects.home_time = label(s, "12:48", 0, 24, 128, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
+    objects.home_time = label(s, "12", 0, 25, 58, font_for_label("12"), 0x000000 | color_for_label("12"));
+    objects.home_time_colon = label(s, ":", 55, 35, 14, font_for_label(":"), 0x000000 | color_for_label(":"));
+    objects.home_time_minute = label(s, "48", 69, 25, 58, font_for_label("48"), 0x000000 | color_for_label("48"));
     objects.home_weather_sun = shape(s, 11, 78, 13, 13, 7, 0xE09B00);
     objects.home_weather_cloud_a = shape(s, 11, 82, 12, 9, 5, 0x9AA4B2);
     objects.home_weather_cloud_b = shape(s, 18, 79, 11, 12, 6, 0x9AA4B2);
