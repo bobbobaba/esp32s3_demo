@@ -74,14 +74,14 @@ static uint32_t color_for_label(const char *text) {
 void create_screen_home() {
     lv_obj_t *s = screen_base(0x05070B);
     objects.home = s;
+    lv_obj_t *cat = lv_img_create(s);
+    lv_img_set_src(cat, &catstand_img);
+    lv_obj_set_pos(cat, 48, 48);
     panel(s, 6, 7, 116, 15, 0x30343D, 0x626A78);
     panel(s, 7, 27, 76, 40, 0x101722, 0x19D3FF);
     panel(s, 7, 72, 52, 18, 0x17140C, 0xFFC928);
     panel(s, 7, 94, 70, 14, 0x0D1710, 0x7DFF7A);
     panel(s, 7, 110, 70, 14, 0x0D151C, 0x5FE8FF);
-    lv_obj_t *cat = lv_img_create(s);
-    lv_img_set_src(cat, &catstand_img);
-    lv_obj_set_pos(cat, 48, 48);
     label(s, "ESP32-S3", 12, 10, 72, font_for_label("ESP32-S3"), 0x000000 | color_for_label("ESP32-S3"));
     objects.home_time = label(s, "12:48", 12, 35, 68, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
     objects.home_temp = label(s, "TEMP 26C", 12, 75, 45, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
