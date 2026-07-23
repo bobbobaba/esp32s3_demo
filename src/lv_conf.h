@@ -26,8 +26,9 @@
 #define LV_FONT_MONTSERRAT_24 1
 #define LV_FONT_MONTSERRAT_28 1
 #define LV_FONT_MONTSERRAT_32 1
-#define LV_FONT_SIMSUN_16_CJK 1
+#define LV_FONT_SIMSUN_16_CJK 0
 #define LV_FONT_DEFAULT &lv_font_montserrat_12
+#define LV_FONT_FMT_TXT_LARGE 0
 
 #define LV_USE_ARC 1
 #define LV_USE_BAR 1
