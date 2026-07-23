@@ -1,0 +1,29 @@
+.pio/
+.vscode/
+.idea/
+
+# Local secrets and provisioning files
+.env
+.env.*
+*.pem
+*.key
+*.crt
+secrets.*
+credentials.*
+wifi_config.*
+service_config.*
+platformio_override.ini
+local_*.ini
+
+# PlatformIO and firmware outputs
+*.bin
+*.elf
+*.map
+*.hex
+*.uf2
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*~
+*.swp
