@@ -2,6 +2,7 @@
 
 #include "screens.h"
 #include "images.h"
+#include "catstand_img.h"
 #include "fonts.h"
 #include "actions.h"
 #include "vars.h"
@@ -75,17 +76,21 @@ static uint32_t color_for_label(const char *text) {
 void create_screen_home() {
     lv_obj_t *s = screen_base(0x05070B);
     objects.home = s;
-    panel(s, 8, 24, 112, 22, 0x101722, 0x263142);
-    panel(s, 20, 52, 88, 31, 0x0D151C, 0x19D3FF);
-    panel(s, 8, 91, 52, 18, 0x30343D, 0x626A78);
-    panel(s, 68, 91, 52, 18, 0x30343D, 0x626A78);
-    label(s, "ESP32-S3", 18, 4, 92, font_for_label("ESP32-S3"), 0x000000 | color_for_label("ESP32-S3"));
-    objects.home_temp = label(s, "TEMP 26C", 30, 28, 78, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
-    objects.home_time = label(s, "12:48", 27, 58, 74, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
-    objects.home_cpu = label(s, "CPU 18%", 13, 95, 44, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
-    objects.home_mem = label(s, "MEM 42%", 73, 95, 44, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
-    label(s, "P4 MENU", 4, 114, 60, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
-    label(s, "P7 AI", 88, 114, 38, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
+    panel(s, 6, 7, 116, 15, 0x30343D, 0x626A78);
+    panel(s, 7, 27, 76, 40, 0x101722, 0x19D3FF);
+    panel(s, 7, 72, 52, 18, 0x17140C, 0xFFC928);
+    panel(s, 7, 94, 70, 14, 0x0D1710, 0x7DFF7A);
+    panel(s, 7, 110, 70, 14, 0x0D151C, 0x5FE8FF);
+    lv_obj_t *cat = lv_img_create(s);
+    lv_img_set_src(cat, &catstand_img);
+    lv_obj_set_pos(cat, 86, 84);
+    label(s, "ESP32-S3", 12, 10, 72, font_for_label("ESP32-S3"), 0x000000 | color_for_label("ESP32-S3"));
+    objects.home_time = label(s, "12:48", 12, 35, 68, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
+    objects.home_temp = label(s, "TEMP 26C", 12, 75, 45, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
+    objects.home_cpu = label(s, "CPU 18%", 13, 96, 60, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
+    objects.home_mem = label(s, "MEM 42%", 13, 112, 60, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
+    label(s, "P4 MENU", 84, 10, 38, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
+    label(s, "P7 AI", 86, 69, 36, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
     tick_screen_home();
 }
 
