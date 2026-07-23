@@ -15,8 +15,6 @@
 #include "mi_style_watchface.h"
 #include "ui/ui.h"
 
-extern "C" const lv_font_t lv_font_cn_12;
-
 namespace {
 
 constexpr char kApName[] = "ESP32S3-Setup";
@@ -1948,7 +1946,7 @@ void lvglSetLabel(lv_obj_t *label, const String &text) {
       break;
     }
   }
-  lv_obj_set_style_text_font(label, hasCjk ? &lv_font_cn_12 : LV_FONT_DEFAULT, 0);
+  lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : LV_FONT_DEFAULT, 0);
   lv_label_set_text(label, text.c_str());
 }
 
