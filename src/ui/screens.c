@@ -11,8 +11,6 @@
 
 objects_t objects;
 
-static const uint32_t k_screen_bg = 0x242832;
-
 lv_obj_t *tick_value_change_obj;
 
 static lv_obj_t *screen_base(uint32_t bg) {
@@ -20,8 +18,7 @@ static lv_obj_t *screen_base(uint32_t bg) {
     (void)bg;
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(screen, 128, 128);
-    lv_obj_set_style_bg_color(screen, lv_color_hex(k_screen_bg), 0);
-    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_width(screen, 0, 0);
     lv_obj_set_style_pad_all(screen, 0, 0);
     return screen;
@@ -83,14 +80,14 @@ void create_screen_home() {
     panel(s, 7, 110, 70, 14, 0x0D151C, 0x5FE8FF);
     lv_obj_t *cat = lv_img_create(s);
     lv_img_set_src(cat, &catstand_img);
-    lv_obj_set_pos(cat, 86, 84);
+    lv_obj_set_pos(cat, 48, 48);
     label(s, "ESP32-S3", 12, 10, 72, font_for_label("ESP32-S3"), 0x000000 | color_for_label("ESP32-S3"));
     objects.home_time = label(s, "12:48", 12, 35, 68, font_for_label("12:48"), 0x000000 | color_for_label("12:48"));
     objects.home_temp = label(s, "TEMP 26C", 12, 75, 45, font_for_label("TEMP 26C"), 0x000000 | color_for_label("TEMP 26C"));
     objects.home_cpu = label(s, "CPU 18%", 13, 96, 60, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
     objects.home_mem = label(s, "MEM 42%", 13, 112, 60, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
     label(s, "P4 MENU", 84, 10, 38, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
-    label(s, "P7 AI", 86, 69, 36, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
+    label(s, "P7 AI", 86, 26, 36, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
     tick_screen_home();
 }
 
