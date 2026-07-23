@@ -11,7 +11,7 @@
 objects_t objects;
 
 static const uint32_t k_screen_bg = 0x242832;
-extern const lv_font_t lv_font_cn_16;
+extern const lv_font_t lv_font_cn_12;
 
 lv_obj_t *tick_value_change_obj;
 
@@ -55,7 +55,7 @@ static lv_obj_t *label(lv_obj_t *parent, const char *text, int x, int y, int w, 
 
 static const lv_font_t *font_for_label(const char *text) {
     for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
-        if (*p >= 0x80) return &lv_font_cn_16;
+        if (*p >= 0x80) return &lv_font_cn_12;
     }
     if (strcmp(text, "12:48") == 0) return &lv_font_montserrat_24;
     if (strcmp(text, "LISTEN") == 0) return &lv_font_montserrat_12;
