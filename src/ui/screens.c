@@ -3,6 +3,7 @@
 #include "screens.h"
 #include "images.h"
 #include "catstand_img.h"
+#include "pixel_watch_img.h"
 #include "fonts.h"
 #include "actions.h"
 #include "vars.h"
@@ -77,6 +78,20 @@ static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius,
     return obj;
 }
 
+// 半透明白色卡片：保证文字在像素背景上可读
+static lv_obj_t *glass_panel(lv_obj_t *parent, int x, int y, int w, int h) {
+    lv_obj_t *obj = lv_obj_create(parent);
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_pos(obj, x, y);
+    lv_obj_set_size(obj, w, h);
+    lv_obj_set_style_radius(obj, 5, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_70, 0);
+    lv_obj_set_style_border_width(obj, 0, 0);
+    lv_obj_set_style_pad_all(obj, 0, 0);
+    return obj;
+}
+
 static void time_digit(lv_obj_t *parent, int x, int y, lv_obj_t *segments[7]) {
     segments[0] = shape(parent, x + 4, y, 12, 4, 2, 0x111827);
     segments[1] = shape(parent, x + 16, y + 4, 4, 12, 2, 0x111827);
@@ -111,30 +126,35 @@ static uint32_t color_for_label(const char *text) {
 void create_screen_home() {
     lv_obj_t *s = screen_base(0x05070B);
     objects.home = s;
-    lv_obj_t *cat = lv_img_create(s);
-    lv_img_set_src(cat, &catstand_img);
-    lv_obj_set_pos(cat, 48, 48);
-    objects.home_cpu = label(s, "CPU 18%", 8, 7, 50, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
+    objects.home_bg = lv_img_create(s);
+    lv_img_set_src(objects.home_bg, &pixel_bg_day);
+    lv_obj_set_pos(objects.home_bg, 0, 0);
+    objects.home_cat = lv_img_create(s);
+    lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
+    lv_obj_set_pos(objects.home_cat, 76, 78);
+    glass_panel(s, 2, 3, 56, 28);
+    objects.home_cpu = label(s, "CPU 18%", 8, 5, 50, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
     objects.home_mem = label(s, "MEM 42%", 8, 17, 50, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
+    glass_panel(s, 84, 3, 42, 22);
     objects.home_signal_bars[0] = signal_bar(s, 89, 16, 4, 5);
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
+    glass_panel(s, 4, 28, 120, 42);
     time_digit(s, 10, 31, objects.home_time_segments[0]);
     time_digit(s, 34, 31, objects.home_time_segments[1]);
     objects.home_time_colon_dots[0] = shape(s, 60, 40, 4, 4, 2, 0x111827);
     objects.home_time_colon_dots[1] = shape(s, 60, 54, 4, 4, 2, 0x111827);
     time_digit(s, 70, 31, objects.home_time_segments[2]);
     time_digit(s, 94, 31, objects.home_time_segments[3]);
-    objects.home_weather_sun = shape(s, 11, 78, 13, 13, 7, 0xE09B00);
-    objects.home_weather_cloud_a = shape(s, 11, 82, 12, 9, 5, 0x9AA4B2);
-    objects.home_weather_cloud_b = shape(s, 18, 79, 11, 12, 6, 0x9AA4B2);
-    objects.home_weather_cloud_base = shape(s, 14, 87, 18, 5, 3, 0x9AA4B2);
-    objects.home_weather_rain[0] = shape(s, 16, 95, 3, 8, 2, 0x1587A6);
-    objects.home_weather_rain[1] = shape(s, 25, 95, 3, 8, 2, 0x1587A6);
-    objects.home_temp = label(s, "26C", 34, 78, 40, font_for_label("26C"), 0x000000 | color_for_label("26C"));
-    label(s, "P4 MENU", 11, 96, 48, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
-    label(s, "P7 AI", 16, 112, 40, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
+    glass_panel(s, 4, 74, 60, 22);
+    objects.home_weather_icon = lv_img_create(s);
+    lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
+    lv_obj_set_pos(objects.home_weather_icon, 8, 77);
+    objects.home_temp = label(s, "26C", 28, 79, 34, font_for_label("26C"), 0x000000 | color_for_label("26C"));
+    glass_panel(s, 4, 99, 60, 27);
+    label(s, "P4 MENU", 8, 100, 52, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
+    label(s, "P7 AI", 8, 113, 52, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
     tick_screen_home();
 }
 

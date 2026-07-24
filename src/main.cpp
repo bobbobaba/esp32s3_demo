@@ -13,6 +13,7 @@
 #include <time.h>
 
 #include "mi_style_watchface.h"
+#include "ui/pixel_watch_img.h"
 #include "ui/ui.h"
 
 namespace {
@@ -2056,25 +2057,24 @@ void updateEezHomePage() {
   }
   lvglSetLabel(::objects.home_temp, weather.valid ?
       String(displayNumber(weather.temperature)) + "C" : String("--C"));
-  const bool showRain = weather.valid && ((weather.weatherCode >= 51 && weather.weatherCode <= 67) ||
+  const bool showSnow = weather.valid && ((weather.weatherCode >= 71 && weather.weatherCode <= 77) ||
+      weather.weatherCode == 85 || weather.weatherCode == 86);
+  const bool showRain = weather.valid && !showSnow && ((weather.weatherCode >= 51 && weather.weatherCode <= 67) ||
       (weather.weatherCode >= 80 && weather.weatherCode <= 82) || weather.weatherCode >= 95);
-  const bool showCloud = weather.valid && (showRain || (weather.weatherCode >= 1 && weather.weatherCode <= 3) ||
+  const bool showCloud = weather.valid && ((weather.weatherCode >= 1 && weather.weatherCode <= 3) ||
       weather.weatherCode == 45 || weather.weatherCode == 48);
-  const bool showSun = !weather.valid || !showCloud;
-  if (::objects.home_weather_sun) {
-    if (showSun) lv_obj_clear_flag(::objects.home_weather_sun, LV_OBJ_FLAG_HIDDEN);
-    else lv_obj_add_flag(::objects.home_weather_sun, LV_OBJ_FLAG_HIDDEN);
-  }
-  lv_obj_t *cloudParts[] = {::objects.home_weather_cloud_a, ::objects.home_weather_cloud_b, ::objects.home_weather_cloud_base};
-  for (lv_obj_t *part : cloudParts) {
-    if (!part) continue;
-    if (showCloud) lv_obj_clear_flag(part, LV_OBJ_FLAG_HIDDEN);
-    else lv_obj_add_flag(part, LV_OBJ_FLAG_HIDDEN);
-  }
-  for (lv_obj_t *part : ::objects.home_weather_rain) {
-    if (!part) continue;
-    if (showRain) lv_obj_clear_flag(part, LV_OBJ_FLAG_HIDDEN);
-    else lv_obj_add_flag(part, LV_OBJ_FLAG_HIDDEN);
+  const lv_img_dsc_t *weatherIcon = &pixel_icon_sunny;
+  if (showSnow) weatherIcon = &pixel_icon_snow;
+  else if (showRain) weatherIcon = &pixel_icon_rain;
+  else if (showCloud) weatherIcon = &pixel_icon_cloudy;
+  if (::objects.home_weather_icon) lv_img_set_src(::objects.home_weather_icon, weatherIcon);
+  struct tm homeNow = {};
+  const bool homeIsDay = !getLocalTime(&homeNow, 10) || (homeNow.tm_hour >= 7 && homeNow.tm_hour < 19);
+  if (::objects.home_bg) lv_img_set_src(::objects.home_bg, homeIsDay ? &pixel_bg_day : &pixel_bg_night);
+  if (::objects.home_cat) {
+    // 夜间背景自带睡觉小猫，隐藏白天的站立小猫
+    if (homeIsDay) lv_obj_clear_flag(::objects.home_cat, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(::objects.home_cat, LV_OBJ_FLAG_HIDDEN);
   }
   const int cpuPercent = serverStatus.valid && serverStatus.cpuCount > 0 ?
       constrain(static_cast<int>(serverStatus.load1m * 100.0f / serverStatus.cpuCount), 0, 100) : -1;
@@ -3351,6 +3351,20 @@ void serviceWatchFace() {
   renderWeather();
 }
 
+void serviceHomeCatAnimation() {
+  if (!eezPageVisible() || !uiPageIs(UiPage::Watch)) return;
+  lv_obj_t *cat = ::objects.home_cat;
+  if (!cat || lv_obj_has_flag(cat, LV_OBJ_FLAG_HIDDEN)) return;
+  static unsigned long nextFrameMs = 0;
+  static uint8_t step = 0;
+  if (millis() < nextFrameMs) return;
+  nextFrameMs = millis() + 600UL;
+  // 甩尾-回位-甩尾-眨眼 循环
+  static const lv_img_dsc_t *kFrames[] = {&pixel_cat_idle0, &pixel_cat_idle1, &pixel_cat_idle0, &pixel_cat_idle2};
+  step = (step + 1) & 3;
+  lv_img_set_src(cat, kFrames[step]);
+}
+
 void serviceMpuPage() {
   if (!mpuReady) {
     retryMpu6050();
@@ -3754,4 +3768,5 @@ void loop() {
   }
   serviceDashboardPage();
   serviceWatchFace();
+  serviceHomeCatAnimation();
 }

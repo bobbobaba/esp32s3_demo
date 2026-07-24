@@ -40,11 +40,9 @@ typedef struct _objects_t {
     lv_obj_t *home_cpu;
     lv_obj_t *home_mem;
     lv_obj_t *home_signal_bars[4];
-    lv_obj_t *home_weather_sun;
-    lv_obj_t *home_weather_cloud_a;
-    lv_obj_t *home_weather_cloud_b;
-    lv_obj_t *home_weather_cloud_base;
-    lv_obj_t *home_weather_rain[2];
+    lv_obj_t *home_bg;
+    lv_obj_t *home_cat;
+    lv_obj_t *home_weather_icon;
     lv_obj_t *menu_rows[4];
     lv_obj_t *ai_status;
     lv_obj_t *ai_you;
