@@ -2111,7 +2111,7 @@ void updateEezHomePage() {
     else signalBars = 1;
   }
   // EXP条映射信号强度（满格=100%）
-  setHomeBar(::objects.home_exp_bar, signalBars > 0 ? signalBars * 25 : 5, 30);
+  setHomeBar(::objects.home_exp_bar, signalBars > 0 ? signalBars * 25 : 5, 28);
   static const lv_img_dsc_t *kWifiStates[5] = {
       &pixel_wifi_0, &pixel_wifi_1, &pixel_wifi_2, &pixel_wifi_3, &pixel_wifi_4,
   };

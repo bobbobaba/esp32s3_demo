@@ -107,7 +107,7 @@ void create_screen_home() {
     objects.home_bg = lv_img_create(s);
     lv_img_set_src(objects.home_bg, &pixel_bg_day);
     lv_obj_set_pos(objects.home_bg, 0, 0);
-    // 方案A：左侧小公告板 + 场景冒险元素 + 底部泥地操作栏
+    // 方案A修正：左侧公告板62x60，数字居中不溢出，天气在板身内
     pixel_label(s, "LV1", 3, 3, 24, 0xFFDC50, 0x2B1B10);
     pixel_label(s, "HP", 80, 2, 16, 0xFFB4B4, 0x2B1B10);
     bar_track(s, 28, 3, 50, 7);
@@ -121,39 +121,37 @@ void create_screen_home() {
 
     lv_obj_t *board = lv_img_create(s);
     lv_img_set_src(board, &pixel_board);
-    lv_obj_set_pos(board, 3, 22);
-    // 板内缩小金色数字时钟：13x17数字 + 6x17冒号
-    static const int kDigitX[4] = {8, 22, 40, 54};
+    lv_obj_set_pos(board, 2, 20);
+    // 12x16数字 + 6x16冒号，总宽54，板宽62居中：x=6起
+    static const int kDigitX[4] = {6, 18, 36, 48};
     for (int i = 0; i < 4; ++i) {
         objects.home_time_digits[i] = lv_img_create(s);
         lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
-        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 36);
+        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 34);
     }
     lv_obj_t *colon = lv_img_create(s);
     lv_img_set_src(colon, &pixel_digit_colon);
-    lv_obj_set_pos(colon, 34, 36);
-    objects.home_date = pixel_label(s, "--/--", 9, 62, 40, 0x8C3A12, 0xFFE2A8);
+    lv_obj_set_pos(colon, 30, 34);
+    objects.home_date = pixel_label(s, "--/--", 8, 52, 36, 0x8C3A12, 0xFFE2A8);
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 9, 70);
-    objects.home_temp = pixel_label(s, "26C", 23, 72, 20, 0xA03A0E, 0xFFE2A8);
+    lv_obj_set_pos(objects.home_weather_icon, 8, 60);
+    objects.home_temp = pixel_label(s, "26C", 22, 62, 20, 0xA03A0E, 0xFFE2A8);
 
-    // 板上/旁装饰
     lv_obj_t *leaf = lv_img_create(s);
     lv_img_set_src(leaf, &pixel_adv_leaf);
-    lv_obj_set_pos(leaf, 5, 32);
+    lv_obj_set_pos(leaf, 50, 66);  // 钉在板右下角，避开时间数字
     lv_obj_t *star1 = lv_img_create(s);
     lv_img_set_src(star1, &pixel_adv_star);
-    lv_obj_set_pos(star1, 66, 26);
+    lv_obj_set_pos(star1, 68, 24);
     lv_obj_t *star2 = lv_img_create(s);
     lv_img_set_src(star2, &pixel_adv_star);
-    lv_obj_set_pos(star2, 72, 40);
+    lv_obj_set_pos(star2, 74, 38);
 
     objects.home_cat = lv_img_create(s);
     lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
-    lv_obj_set_pos(objects.home_cat, 82, 58);
+    lv_obj_set_pos(objects.home_cat, 84, 56);
 
-    // 地面上方冒险元素
     lv_obj_t *slime = lv_img_create(s);
     lv_img_set_src(slime, &pixel_adv_slime);
     lv_obj_set_pos(slime, 48, 82);
@@ -176,29 +174,29 @@ void create_screen_home() {
     lv_img_set_src(scroll, &pixel_adv_scroll);
     lv_obj_set_pos(scroll, 95, 80);
 
-    // 底部泥地操作栏：对话窗 + EXP条 + 四个圆形菜单按钮
     lv_obj_t *ground = lv_img_create(s);
     lv_img_set_src(ground, &pixel_ground);
     lv_obj_set_pos(ground, 0, 100);
     lv_obj_t *chat = lv_img_create(s);
     lv_img_set_src(chat, &pixel_hud_chat);
     lv_obj_set_pos(chat, 3, 106);
-    pixel_label(s, "AI", 6, 108, 16, 0x78C8FF, 0x000000);
-    bar_track(s, 46, 108, 32, 7);
+    // 对话框本身已有信息条纹理，不再叠 AI 文字
+    bar_track(s, 46, 108, 30, 7);
     objects.home_exp_bar = shape(s, 47, 109, 2, 5, 1, 0xFFC832);
     pixel_label(s, "EXP", 46, 117, 24, 0xFFDC78, 0x2B1B10);
+    // 四个按钮总宽56，从x=78起，末尾刚好到128
     lv_obj_t *btn_menu = lv_img_create(s);
     lv_img_set_src(btn_menu, &pixel_hud_menu);
-    lv_obj_set_pos(btn_menu, 84, 108);
+    lv_obj_set_pos(btn_menu, 78, 108);
     lv_obj_t *btn_chat = lv_img_create(s);
     lv_img_set_src(btn_chat, &pixel_hud_chat_btn);
-    lv_obj_set_pos(btn_chat, 95, 108);
+    lv_obj_set_pos(btn_chat, 90, 108);
     lv_obj_t *btn_bag = lv_img_create(s);
     lv_img_set_src(btn_bag, &pixel_hud_bag);
-    lv_obj_set_pos(btn_bag, 106, 108);
+    lv_obj_set_pos(btn_bag, 102, 108);
     lv_obj_t *btn_quest = lv_img_create(s);
     lv_img_set_src(btn_quest, &pixel_hud_quest);
-    lv_obj_set_pos(btn_quest, 117, 108);
+    lv_obj_set_pos(btn_quest, 114, 108);
     tick_screen_home();
 }
 
