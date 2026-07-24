@@ -107,44 +107,98 @@ void create_screen_home() {
     objects.home_bg = lv_img_create(s);
     lv_img_set_src(objects.home_bg, &pixel_bg_day);
     lv_obj_set_pos(objects.home_bg, 0, 0);
-    // 木质公告板：时间、日期、天气、温度都在板内
-    lv_obj_t *board = lv_img_create(s);
-    lv_img_set_src(board, &pixel_board);
-    lv_obj_set_pos(board, 6, 26);
-    objects.home_cat = lv_img_create(s);
-    lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
-    lv_obj_set_pos(objects.home_cat, 76, 78);
-    pixel_label(s, "CPU", 5, 6, 24, 0xFFFFFF, 0x2B1B10);
-    bar_track(s, 28, 5, 42, 9);
-    objects.home_cpu_bar = shape(s, 29, 6, 2, 7, 1, 0xE84545);
-    pixel_label(s, "MEM", 5, 17, 24, 0xFFFFFF, 0x2B1B10);
-    bar_track(s, 28, 16, 42, 9);
-    objects.home_mem_bar = shape(s, 29, 17, 2, 7, 1, 0x3D7BFF);
+    // 方案A：左侧小公告板 + 场景冒险元素 + 底部泥地操作栏
+    pixel_label(s, "LV1", 3, 3, 24, 0xFFDC50, 0x2B1B10);
+    pixel_label(s, "HP", 80, 2, 16, 0xFFB4B4, 0x2B1B10);
+    bar_track(s, 28, 3, 50, 7);
+    objects.home_cpu_bar = shape(s, 29, 4, 2, 5, 1, 0xE84545);
+    pixel_label(s, "MP", 80, 11, 16, 0xB4C8FF, 0x2B1B10);
+    bar_track(s, 28, 12, 50, 7);
+    objects.home_mem_bar = shape(s, 29, 13, 2, 5, 1, 0x3D7BFF);
     objects.home_wifi_icon = lv_img_create(s);
     lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
-    lv_obj_set_pos(objects.home_wifi_icon, 102, 4);
-    // 板内金色胖像素时钟：24x32数字 + 12x32冒号
-    static const int kDigitX[4] = {12, 34, 66, 88};
+    lv_obj_set_pos(objects.home_wifi_icon, 102, 2);
+
+    lv_obj_t *board = lv_img_create(s);
+    lv_img_set_src(board, &pixel_board);
+    lv_obj_set_pos(board, 3, 22);
+    // 板内缩小金色数字时钟：13x17数字 + 6x17冒号
+    static const int kDigitX[4] = {8, 22, 40, 54};
     for (int i = 0; i < 4; ++i) {
         objects.home_time_digits[i] = lv_img_create(s);
         lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
-        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 43);
+        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 36);
     }
     lv_obj_t *colon = lv_img_create(s);
     lv_img_set_src(colon, &pixel_digit_colon);
-    lv_obj_set_pos(colon, 56, 43);
-    // 板内日期行：日期星期 + 迷你天气图标 + 温度
-    objects.home_date = pixel_label(s, "--/--", 13, 77, 66, 0x8C3A12, 0xFFE2A8);
+    lv_obj_set_pos(colon, 34, 36);
+    objects.home_date = pixel_label(s, "--/--", 9, 62, 40, 0x8C3A12, 0xFFE2A8);
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 81, 75);
-    objects.home_temp = pixel_label(s, "26C", 95, 77, 20, 0xA03A0E, 0xFFE2A8);
+    lv_obj_set_pos(objects.home_weather_icon, 9, 70);
+    objects.home_temp = pixel_label(s, "26C", 23, 72, 20, 0xA03A0E, 0xFFE2A8);
+
+    // 板上/旁装饰
+    lv_obj_t *leaf = lv_img_create(s);
+    lv_img_set_src(leaf, &pixel_adv_leaf);
+    lv_obj_set_pos(leaf, 5, 32);
+    lv_obj_t *star1 = lv_img_create(s);
+    lv_img_set_src(star1, &pixel_adv_star);
+    lv_obj_set_pos(star1, 66, 26);
+    lv_obj_t *star2 = lv_img_create(s);
+    lv_img_set_src(star2, &pixel_adv_star);
+    lv_obj_set_pos(star2, 72, 40);
+
+    objects.home_cat = lv_img_create(s);
+    lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
+    lv_obj_set_pos(objects.home_cat, 82, 58);
+
+    // 地面上方冒险元素
+    lv_obj_t *slime = lv_img_create(s);
+    lv_img_set_src(slime, &pixel_adv_slime);
+    lv_obj_set_pos(slime, 48, 82);
+    lv_obj_t *chest = lv_img_create(s);
+    lv_img_set_src(chest, &pixel_adv_chest);
+    lv_obj_set_pos(chest, 64, 84);
+    lv_obj_t *coin1 = lv_img_create(s);
+    lv_img_set_src(coin1, &pixel_adv_coin);
+    lv_obj_set_pos(coin1, 78, 88);
+    lv_obj_t *coin2 = lv_img_create(s);
+    lv_img_set_src(coin2, &pixel_adv_coin);
+    lv_obj_set_pos(coin2, 55, 92);
+    lv_obj_t *orb = lv_img_create(s);
+    lv_img_set_src(orb, &pixel_adv_orb);
+    lv_obj_set_pos(orb, 112, 68);
+    lv_obj_t *potion = lv_img_create(s);
+    lv_img_set_src(potion, &pixel_adv_potion);
+    lv_obj_set_pos(potion, 70, 76);
+    lv_obj_t *scroll = lv_img_create(s);
+    lv_img_set_src(scroll, &pixel_adv_scroll);
+    lv_obj_set_pos(scroll, 95, 80);
+
+    // 底部泥地操作栏：对话窗 + EXP条 + 四个圆形菜单按钮
+    lv_obj_t *ground = lv_img_create(s);
+    lv_img_set_src(ground, &pixel_ground);
+    lv_obj_set_pos(ground, 0, 100);
+    lv_obj_t *chat = lv_img_create(s);
+    lv_img_set_src(chat, &pixel_hud_chat);
+    lv_obj_set_pos(chat, 3, 106);
+    pixel_label(s, "AI", 6, 108, 16, 0x78C8FF, 0x000000);
+    bar_track(s, 46, 108, 32, 7);
+    objects.home_exp_bar = shape(s, 47, 109, 2, 5, 1, 0xFFC832);
+    pixel_label(s, "EXP", 46, 117, 24, 0xFFDC78, 0x2B1B10);
     lv_obj_t *btn_menu = lv_img_create(s);
-    lv_img_set_src(btn_menu, &pixel_btn_menu);
-    lv_obj_set_pos(btn_menu, 4, 101);
-    lv_obj_t *btn_ai = lv_img_create(s);
-    lv_img_set_src(btn_ai, &pixel_btn_ai);
-    lv_obj_set_pos(btn_ai, 30, 101);
+    lv_img_set_src(btn_menu, &pixel_hud_menu);
+    lv_obj_set_pos(btn_menu, 84, 108);
+    lv_obj_t *btn_chat = lv_img_create(s);
+    lv_img_set_src(btn_chat, &pixel_hud_chat_btn);
+    lv_obj_set_pos(btn_chat, 95, 108);
+    lv_obj_t *btn_bag = lv_img_create(s);
+    lv_img_set_src(btn_bag, &pixel_hud_bag);
+    lv_obj_set_pos(btn_bag, 106, 108);
+    lv_obj_t *btn_quest = lv_img_create(s);
+    lv_img_set_src(btn_quest, &pixel_hud_quest);
+    lv_obj_set_pos(btn_quest, 117, 108);
     tick_screen_home();
 }
 

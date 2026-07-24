@@ -36,6 +36,7 @@ typedef struct _objects_t {
     lv_obj_t *home_date;
     lv_obj_t *home_cpu_bar;
     lv_obj_t *home_mem_bar;
+    lv_obj_t *home_exp_bar;
     lv_obj_t *home_wifi_icon;
     lv_obj_t *home_bg;
     lv_obj_t *home_cat;

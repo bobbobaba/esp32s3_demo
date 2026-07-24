@@ -2071,11 +2071,11 @@ void updateEezHomePage() {
   struct tm homeNow = {};
   const bool homeTimeValid = getLocalTime(&homeNow, 10);
   const bool homeIsDay = !homeTimeValid || (homeNow.tm_hour >= 7 && homeNow.tm_hour < 19);
-  static const char *kHomeWdays[7] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
   char homeDateBuf[16];
   if (homeTimeValid) {
-    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d %s",
-        homeNow.tm_mon + 1, homeNow.tm_mday, kHomeWdays[homeNow.tm_wday % 7]);
+    // 小公告板只显示月日，省宽度
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d",
+        homeNow.tm_mon + 1, homeNow.tm_mday);
   } else {
     snprintf(homeDateBuf, sizeof(homeDateBuf), "--/--");
   }
@@ -2090,18 +2090,18 @@ void updateEezHomePage() {
       constrain(static_cast<int>(serverStatus.load1m * 100.0f / serverStatus.cpuCount), 0, 100) : -1;
   const int memPercent = serverStatus.valid && isfinite(serverStatus.memoryUsedPercent) ?
       constrain(static_cast<int>(serverStatus.memoryUsedPercent), 0, 100) : -1;
-  // 冒险岛式血条/蓝条：按百分比伸缩填充宽度（底槽内宽40px）
-  auto setHomeBar = [](lv_obj_t *bar, int percent) {
+  // 冒险岛式血条/蓝条/经验条：按百分比伸缩填充宽度
+  auto setHomeBar = [](lv_obj_t *bar, int percent, int maxWidth) {
     if (!bar) return;
     if (percent < 0) {
       lv_obj_add_flag(bar, LV_OBJ_FLAG_HIDDEN);
       return;
     }
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_set_width(bar, constrain(percent * 40 / 100, 2, 40));
+    lv_obj_set_width(bar, constrain(percent * maxWidth / 100, 2, maxWidth));
   };
-  setHomeBar(::objects.home_cpu_bar, cpuPercent);
-  setHomeBar(::objects.home_mem_bar, memPercent);
+  setHomeBar(::objects.home_cpu_bar, cpuPercent, 48);  // HP
+  setHomeBar(::objects.home_mem_bar, memPercent, 48);  // MP
   int signalBars = 0;
   if (WiFi.status() == WL_CONNECTED) {
     const int rssi = WiFi.RSSI();
@@ -2110,6 +2110,8 @@ void updateEezHomePage() {
     else if (rssi >= -78) signalBars = 2;
     else signalBars = 1;
   }
+  // EXP条映射信号强度（满格=100%）
+  setHomeBar(::objects.home_exp_bar, signalBars > 0 ? signalBars * 25 : 5, 30);
   static const lv_img_dsc_t *kWifiStates[5] = {
       &pixel_wifi_0, &pixel_wifi_1, &pixel_wifi_2, &pixel_wifi_3, &pixel_wifi_4,
   };
