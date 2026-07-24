@@ -53,20 +53,6 @@ static lv_obj_t *label(lv_obj_t *parent, const char *text, int x, int y, int w, 
     return obj;
 }
 
-static lv_obj_t *signal_bar(lv_obj_t *parent, int x, int y, int w, int h) {
-    lv_obj_t *obj = lv_obj_create(parent);
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_pos(obj, x, y);
-    lv_obj_set_size(obj, w, h);
-    lv_obj_set_style_radius(obj, 1, 0);
-    lv_obj_set_style_bg_color(obj, lv_color_hex(0x626A78), 0);
-    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(obj, 1, 0);
-    lv_obj_set_style_border_color(obj, lv_color_hex(0x2B1B10), 0);
-    lv_obj_set_style_pad_all(obj, 0, 0);
-    return obj;
-}
-
 static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius, uint32_t color) {
     lv_obj_t *obj = lv_obj_create(parent);
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
@@ -130,10 +116,9 @@ void create_screen_home() {
     pixel_label(s, "MEM", 5, 17, 24, 0xFFFFFF);
     bar_track(s, 28, 16, 42, 9);
     objects.home_mem_bar = shape(s, 29, 17, 2, 7, 1, 0x3D7BFF);
-    objects.home_signal_bars[0] = signal_bar(s, 89, 16, 4, 5);
-    objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
-    objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
-    objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
+    objects.home_wifi_icon = lv_img_create(s);
+    lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
+    lv_obj_set_pos(objects.home_wifi_icon, 99, 4);
     // 胖像素数字时钟：24x32数字 + 12x32冒号
     static const int kDigitX[4] = {5, 31, 71, 97};
     for (int i = 0; i < 4; ++i) {

@@ -29,6 +29,11 @@ extern const lv_img_dsc_t pixel_digit_7;
 extern const lv_img_dsc_t pixel_digit_8;
 extern const lv_img_dsc_t pixel_digit_9;
 extern const lv_img_dsc_t pixel_digit_colon;
+extern const lv_img_dsc_t pixel_wifi_0;
+extern const lv_img_dsc_t pixel_wifi_1;
+extern const lv_img_dsc_t pixel_wifi_2;
+extern const lv_img_dsc_t pixel_wifi_3;
+extern const lv_img_dsc_t pixel_wifi_4;
 
 #ifdef __cplusplus
 }

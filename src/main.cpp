@@ -2100,11 +2100,10 @@ void updateEezHomePage() {
     else if (rssi >= -78) signalBars = 2;
     else signalBars = 1;
   }
-  for (uint8_t i = 0; i < 4; ++i) {
-    if (!::objects.home_signal_bars[i]) continue;
-    lv_obj_set_style_bg_color(::objects.home_signal_bars[i],
-        lv_color_hex(i < signalBars ? 0x8CE44C : 0x566072), 0);
-  }
+  static const lv_img_dsc_t *kWifiStates[5] = {
+      &pixel_wifi_0, &pixel_wifi_1, &pixel_wifi_2, &pixel_wifi_3, &pixel_wifi_4,
+  };
+  if (::objects.home_wifi_icon) lv_img_set_src(::objects.home_wifi_icon, kWifiStates[signalBars]);
 }
 
 void updateEezMenuPage() {
