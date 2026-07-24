@@ -46,7 +46,8 @@ static lv_obj_t *label(lv_obj_t *parent, const char *text, int x, int y, int w, 
     lv_obj_set_width(obj, w);
     lv_obj_set_style_text_font(obj, font, 0);
     lv_obj_set_style_text_color(obj, lv_color_hex(color), 0);
-    lv_obj_set_style_text_letter_space(obj, 0, 0);
+    // unscii是8px等宽字体，-1字距压到7px/字符，与原Montserrat布局宽度兼容
+    lv_obj_set_style_text_letter_space(obj, font == &lv_font_unscii_8 ? -1 : 0, 0);
     lv_label_set_long_mode(obj, LV_LABEL_LONG_CLIP);
     lv_label_set_text(obj, text);
     return obj;
@@ -106,10 +107,8 @@ static const lv_font_t *font_for_label(const char *text) {
     for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
         if (*p >= 0x80) return &lv_font_simsun_16_cjk;
     }
-    if (strcmp(text, "12") == 0 || strcmp(text, "48") == 0) return &lv_font_montserrat_48;
-    if (strcmp(text, ":") == 0) return &lv_font_montserrat_32;
-    if (strcmp(text, "LISTEN") == 0) return &lv_font_montserrat_12;
-    return &lv_font_montserrat_12;
+    // 8位像素点阵字体，匹配冒险岛像素风
+    return &lv_font_unscii_8;
 }
 
 static uint32_t color_for_label(const char *text) {
@@ -132,9 +131,9 @@ void create_screen_home() {
     objects.home_cat = lv_img_create(s);
     lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
     lv_obj_set_pos(objects.home_cat, 76, 78);
-    glass_panel(s, 2, 3, 56, 28);
-    objects.home_cpu = label(s, "CPU 18%", 8, 5, 50, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
-    objects.home_mem = label(s, "MEM 42%", 8, 17, 50, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
+    glass_panel(s, 2, 3, 64, 28);
+    objects.home_cpu = label(s, "CPU 18%", 8, 6, 56, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
+    objects.home_mem = label(s, "MEM 42%", 8, 17, 56, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
     glass_panel(s, 84, 3, 42, 22);
     objects.home_signal_bars[0] = signal_bar(s, 89, 16, 4, 5);
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
@@ -212,7 +211,7 @@ void create_screen_settings() {
     objects.settings_ota = label(s, "OTA OFF", 58, 57, 58, font_for_label("OTA OFF"), 0x000000 | color_for_label("OTA OFF"));
     label(s, "NET", 12, 85, 38, font_for_label("NET"), 0x000000 | color_for_label("NET"));
     objects.settings_wifi = label(s, "WIFI ON", 58, 85, 58, font_for_label("WIFI ON"), 0x000000 | color_for_label("WIFI ON"));
-    label(s, "P4 BACK", 2, 114, 48, font_for_label("P4 BACK"), 0x000000 | color_for_label("P4 BACK"));
+    label(s, "P4 BACK", 2, 114, 50, font_for_label("P4 BACK"), 0x000000 | color_for_label("P4 BACK"));
     label(s, "P5-", 54, 114, 26, font_for_label("P5-"), 0x000000 | color_for_label("P5-"));
     label(s, "P6+", 82, 114, 26, font_for_label("P6+"), 0x000000 | color_for_label("P6+"));
     label(s, "P7 WIFI", 106, 114, 22, font_for_label("P7 WIFI"), 0x000000 | color_for_label("P7 WIFI"));
@@ -249,9 +248,9 @@ void create_screen_led() {
     label(s, "LED FX", 42, 4, 50, font_for_label("LED FX"), 0x000000 | color_for_label("LED FX"));
     label(s, "COLOR", 43, 44, 44, font_for_label("COLOR"), 0x000000 | color_for_label("COLOR"));
     objects.led_mode = label(s, "RAINBOW", 38, 98, 64, font_for_label("RAINBOW"), 0x000000 | color_for_label("RAINBOW"));
-    label(s, "P4 OFF", 2, 114, 38, font_for_label("P4 OFF"), 0x000000 | color_for_label("P4 OFF"));
-    label(s, "P5 RAIN", 41, 114, 46, font_for_label("P5 RAIN"), 0x000000 | color_for_label("P5 RAIN"));
-    label(s, "P6/P7", 91, 114, 36, font_for_label("P6/P7"), 0x000000 | color_for_label("P6/P7"));
+    label(s, "P4 OFF", 2, 114, 42, font_for_label("P4 OFF"), 0x000000 | color_for_label("P4 OFF"));
+    label(s, "P5 RAIN", 44, 114, 49, font_for_label("P5 RAIN"), 0x000000 | color_for_label("P5 RAIN"));
+    label(s, "P6/P7", 93, 114, 35, font_for_label("P6/P7"), 0x000000 | color_for_label("P6/P7"));
     tick_screen_led();
 }
 
