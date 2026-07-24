@@ -127,20 +127,20 @@ void create_screen_home() {
     for (int i = 0; i < 4; ++i) {
         objects.home_time_digits[i] = lv_img_create(s);
         lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
-        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 34);
+        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 30);
     }
     lv_obj_t *colon = lv_img_create(s);
     lv_img_set_src(colon, &pixel_digit_colon);
-    lv_obj_set_pos(colon, 30, 34);
-    objects.home_date = pixel_label(s, "--/--", 8, 52, 36, 0x8C3A12, 0xFFE2A8);
+    lv_obj_set_pos(colon, 30, 30);
+    objects.home_date = pixel_label(s, "--/--", 8, 48, 36, 0x8C3A12, 0xFFE2A8);
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 8, 60);
-    objects.home_temp = pixel_label(s, "26C", 22, 62, 20, 0xA03A0E, 0xFFE2A8);
+    lv_obj_set_pos(objects.home_weather_icon, 8, 58);
+    objects.home_temp = pixel_label(s, "26C", 22, 60, 28, 0xA03A0E, 0xFFE2A8);
 
     lv_obj_t *leaf = lv_img_create(s);
     lv_img_set_src(leaf, &pixel_adv_leaf);
-    lv_obj_set_pos(leaf, 50, 66);  // 钉在板右下角，避开时间数字
+    lv_obj_set_pos(leaf, 52, 28);  // 板右上角，避开日期天气行
     lv_obj_t *star1 = lv_img_create(s);
     lv_img_set_src(star1, &pixel_adv_star);
     lv_obj_set_pos(star1, 68, 24);
