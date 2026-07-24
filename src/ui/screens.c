@@ -118,7 +118,7 @@ void create_screen_home() {
     objects.home_mem_bar = shape(s, 29, 17, 2, 7, 1, 0x3D7BFF);
     objects.home_wifi_icon = lv_img_create(s);
     lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
-    lv_obj_set_pos(objects.home_wifi_icon, 99, 4);
+    lv_obj_set_pos(objects.home_wifi_icon, 102, 4);
     // 胖像素数字时钟：24x32数字 + 12x32冒号
     static const int kDigitX[4] = {5, 31, 71, 97};
     for (int i = 0; i < 4; ++i) {
