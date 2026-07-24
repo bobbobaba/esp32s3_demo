@@ -61,7 +61,8 @@ static lv_obj_t *signal_bar(lv_obj_t *parent, int x, int y, int w, int h) {
     lv_obj_set_style_radius(obj, 1, 0);
     lv_obj_set_style_bg_color(obj, lv_color_hex(0x626A78), 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(obj, 0, 0);
+    lv_obj_set_style_border_width(obj, 1, 0);
+    lv_obj_set_style_border_color(obj, lv_color_hex(0x1B2A4A), 0);
     lv_obj_set_style_pad_all(obj, 0, 0);
     return obj;
 }
@@ -79,28 +80,30 @@ static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius,
     return obj;
 }
 
-// 半透明白色卡片：保证文字在像素背景上可读
-static lv_obj_t *glass_panel(lv_obj_t *parent, int x, int y, int w, int h) {
-    lv_obj_t *obj = lv_obj_create(parent);
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_pos(obj, x, y);
-    lv_obj_set_size(obj, w, h);
-    lv_obj_set_style_radius(obj, 5, 0);
-    lv_obj_set_style_bg_color(obj, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_bg_opa(obj, LV_OPA_70, 0);
-    lv_obj_set_style_border_width(obj, 0, 0);
-    lv_obj_set_style_pad_all(obj, 0, 0);
+// 白色填充+深色描边，冒险岛风格的高对比描边元素
+static lv_obj_t *outlined_shape(lv_obj_t *parent, int x, int y, int w, int h, int radius) {
+    lv_obj_t *obj = shape(parent, x, y, w, h, radius, 0xFFFFFF);
+    lv_obj_set_style_border_width(obj, 1, 0);
+    lv_obj_set_style_border_color(obj, lv_color_hex(0x1B2A4A), 0);
     return obj;
 }
 
+// 白字+深色阴影标签：阴影副本挂在user_data上，lvglSetLabel会同步文本
+static lv_obj_t *pixel_label(lv_obj_t *parent, const char *text, int x, int y, int w) {
+    lv_obj_t *shadow = label(parent, text, x + 1, y + 1, w, &lv_font_unscii_8, 0x1B2A4A);
+    lv_obj_t *main = label(parent, text, x, y, w, &lv_font_unscii_8, 0xFFFFFF);
+    lv_obj_set_user_data(main, shadow);
+    return main;
+}
+
 static void time_digit(lv_obj_t *parent, int x, int y, lv_obj_t *segments[7]) {
-    segments[0] = shape(parent, x + 4, y, 12, 4, 2, 0x111827);
-    segments[1] = shape(parent, x + 16, y + 4, 4, 12, 2, 0x111827);
-    segments[2] = shape(parent, x + 16, y + 20, 4, 12, 2, 0x111827);
-    segments[3] = shape(parent, x + 4, y + 32, 12, 4, 2, 0x111827);
-    segments[4] = shape(parent, x, y + 20, 4, 12, 2, 0x111827);
-    segments[5] = shape(parent, x, y + 4, 4, 12, 2, 0x111827);
-    segments[6] = shape(parent, x + 4, y + 16, 12, 4, 2, 0x111827);
+    segments[0] = outlined_shape(parent, x + 4, y, 12, 4, 2);
+    segments[1] = outlined_shape(parent, x + 16, y + 4, 4, 12, 2);
+    segments[2] = outlined_shape(parent, x + 16, y + 20, 4, 12, 2);
+    segments[3] = outlined_shape(parent, x + 4, y + 32, 12, 4, 2);
+    segments[4] = outlined_shape(parent, x, y + 20, 4, 12, 2);
+    segments[5] = outlined_shape(parent, x, y + 4, 4, 12, 2);
+    segments[6] = outlined_shape(parent, x + 4, y + 16, 12, 4, 2);
 }
 
 static const lv_font_t *font_for_label(const char *text) {
@@ -131,29 +134,24 @@ void create_screen_home() {
     objects.home_cat = lv_img_create(s);
     lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
     lv_obj_set_pos(objects.home_cat, 76, 78);
-    glass_panel(s, 2, 3, 64, 28);
-    objects.home_cpu = label(s, "CPU 18%", 8, 6, 56, font_for_label("CPU 18%"), 0x000000 | color_for_label("CPU 18%"));
-    objects.home_mem = label(s, "MEM 42%", 8, 17, 56, font_for_label("MEM 42%"), 0x000000 | color_for_label("MEM 42%"));
-    glass_panel(s, 84, 3, 42, 22);
+    objects.home_cpu = pixel_label(s, "CPU 18%", 6, 5, 56);
+    objects.home_mem = pixel_label(s, "MEM 42%", 6, 16, 56);
     objects.home_signal_bars[0] = signal_bar(s, 89, 16, 4, 5);
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
-    glass_panel(s, 4, 28, 120, 42);
     time_digit(s, 10, 31, objects.home_time_segments[0]);
     time_digit(s, 34, 31, objects.home_time_segments[1]);
-    objects.home_time_colon_dots[0] = shape(s, 60, 40, 4, 4, 2, 0x111827);
-    objects.home_time_colon_dots[1] = shape(s, 60, 54, 4, 4, 2, 0x111827);
+    objects.home_time_colon_dots[0] = outlined_shape(s, 60, 40, 4, 4, 2);
+    objects.home_time_colon_dots[1] = outlined_shape(s, 60, 54, 4, 4, 2);
     time_digit(s, 70, 31, objects.home_time_segments[2]);
     time_digit(s, 94, 31, objects.home_time_segments[3]);
-    glass_panel(s, 4, 74, 60, 22);
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 8, 77);
-    objects.home_temp = label(s, "26C", 28, 79, 34, font_for_label("26C"), 0x000000 | color_for_label("26C"));
-    glass_panel(s, 4, 99, 60, 27);
-    label(s, "P4 MENU", 8, 100, 52, font_for_label("P4 MENU"), 0x000000 | color_for_label("P4 MENU"));
-    label(s, "P7 AI", 8, 113, 52, font_for_label("P7 AI"), 0x000000 | color_for_label("P7 AI"));
+    lv_obj_set_pos(objects.home_weather_icon, 8, 76);
+    objects.home_temp = pixel_label(s, "26C", 28, 80, 34);
+    pixel_label(s, "P4 MENU", 6, 103, 52);
+    pixel_label(s, "P7 AI", 6, 115, 52);
     tick_screen_home();
 }
 

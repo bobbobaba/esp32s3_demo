@@ -1947,8 +1947,18 @@ void lvglSetLabel(lv_obj_t *label, const String &text) {
       break;
     }
   }
-  lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : LV_FONT_DEFAULT, 0);
+  // 像素风界面标签（unscii/simsun）保持点阵字体，不再重置回默认字体
+  const lv_font_t *current = lv_obj_get_style_text_font(label, 0);
+  if (current == &lv_font_unscii_8 || current == &lv_font_simsun_16_cjk) {
+    lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : &lv_font_unscii_8, 0);
+    lv_obj_set_style_text_letter_space(label, hasCjk ? 0 : -1, 0);
+  } else {
+    lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : LV_FONT_DEFAULT, 0);
+  }
   lv_label_set_text(label, text.c_str());
+  // 同步阴影副本（pixel_label挂在user_data上）
+  lv_obj_t *shadow = static_cast<lv_obj_t *>(lv_obj_get_user_data(label));
+  if (shadow) lvglSetLabel(shadow, text);
 }
 
 String fitText(String text, size_t maxLength) {
@@ -2093,7 +2103,7 @@ void updateEezHomePage() {
   for (uint8_t i = 0; i < 4; ++i) {
     if (!::objects.home_signal_bars[i]) continue;
     lv_obj_set_style_bg_color(::objects.home_signal_bars[i],
-        lv_color_hex(i < signalBars ? 0x111827 : 0xD6DBE6), 0);
+        lv_color_hex(i < signalBars ? 0xFFFFFF : 0x64748B), 0);
   }
 }
 
