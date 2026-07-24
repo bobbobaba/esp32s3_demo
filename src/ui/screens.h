@@ -33,6 +33,7 @@ typedef struct _objects_t {
     lv_obj_t *mpu_data;
     lv_obj_t *home_time_digits[4];
     lv_obj_t *home_temp;
+    lv_obj_t *home_date;
     lv_obj_t *home_cpu_bar;
     lv_obj_t *home_mem_bar;
     lv_obj_t *home_wifi_icon;

@@ -12,6 +12,7 @@ extern const lv_img_dsc_t pixel_bg_night;
 extern const lv_img_dsc_t pixel_cat_idle0;
 extern const lv_img_dsc_t pixel_cat_idle1;
 extern const lv_img_dsc_t pixel_cat_idle2;
+extern const lv_img_dsc_t pixel_board;
 extern const lv_img_dsc_t pixel_icon_sunny;
 extern const lv_img_dsc_t pixel_icon_cloudy;
 extern const lv_img_dsc_t pixel_icon_rain;

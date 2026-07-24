@@ -2069,7 +2069,17 @@ void updateEezHomePage() {
   else if (showCloud) weatherIcon = &pixel_icon_cloudy;
   if (::objects.home_weather_icon) lv_img_set_src(::objects.home_weather_icon, weatherIcon);
   struct tm homeNow = {};
-  const bool homeIsDay = !getLocalTime(&homeNow, 10) || (homeNow.tm_hour >= 7 && homeNow.tm_hour < 19);
+  const bool homeTimeValid = getLocalTime(&homeNow, 10);
+  const bool homeIsDay = !homeTimeValid || (homeNow.tm_hour >= 7 && homeNow.tm_hour < 19);
+  static const char *kHomeWdays[7] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+  char homeDateBuf[16];
+  if (homeTimeValid) {
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d %s",
+        homeNow.tm_mon + 1, homeNow.tm_mday, kHomeWdays[homeNow.tm_wday % 7]);
+  } else {
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "--/--");
+  }
+  lvglSetLabel(::objects.home_date, homeDateBuf);
   if (::objects.home_bg) lv_img_set_src(::objects.home_bg, homeIsDay ? &pixel_bg_day : &pixel_bg_night);
   if (::objects.home_cat) {
     // 夜间背景自带睡觉小猫，隐藏白天的站立小猫

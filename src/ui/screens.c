@@ -67,8 +67,8 @@ static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius,
 }
 
 // 冒险岛式描边文字：阴影副本挂在user_data上，lvglSetLabel会同步文本
-static lv_obj_t *pixel_label(lv_obj_t *parent, const char *text, int x, int y, int w, uint32_t fill) {
-    lv_obj_t *shadow = label(parent, text, x + 1, y + 1, w, &lv_font_unscii_8, 0x2B1B10);
+static lv_obj_t *pixel_label(lv_obj_t *parent, const char *text, int x, int y, int w, uint32_t fill, uint32_t shadow_color) {
+    lv_obj_t *shadow = label(parent, text, x + 1, y + 1, w, &lv_font_unscii_8, shadow_color);
     lv_obj_t *main = label(parent, text, x, y, w, &lv_font_unscii_8, fill);
     lv_obj_set_user_data(main, shadow);
     return main;
@@ -107,32 +107,38 @@ void create_screen_home() {
     objects.home_bg = lv_img_create(s);
     lv_img_set_src(objects.home_bg, &pixel_bg_day);
     lv_obj_set_pos(objects.home_bg, 0, 0);
+    // 木质公告板：时间、日期、天气、温度都在板内
+    lv_obj_t *board = lv_img_create(s);
+    lv_img_set_src(board, &pixel_board);
+    lv_obj_set_pos(board, 6, 26);
     objects.home_cat = lv_img_create(s);
     lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
     lv_obj_set_pos(objects.home_cat, 76, 78);
-    pixel_label(s, "CPU", 5, 6, 24, 0xFFFFFF);
+    pixel_label(s, "CPU", 5, 6, 24, 0xFFFFFF, 0x2B1B10);
     bar_track(s, 28, 5, 42, 9);
     objects.home_cpu_bar = shape(s, 29, 6, 2, 7, 1, 0xE84545);
-    pixel_label(s, "MEM", 5, 17, 24, 0xFFFFFF);
+    pixel_label(s, "MEM", 5, 17, 24, 0xFFFFFF, 0x2B1B10);
     bar_track(s, 28, 16, 42, 9);
     objects.home_mem_bar = shape(s, 29, 17, 2, 7, 1, 0x3D7BFF);
     objects.home_wifi_icon = lv_img_create(s);
     lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
     lv_obj_set_pos(objects.home_wifi_icon, 102, 4);
-    // 胖像素数字时钟：24x32数字 + 12x32冒号
-    static const int kDigitX[4] = {5, 31, 71, 97};
+    // 板内金色胖像素时钟：24x32数字 + 12x32冒号
+    static const int kDigitX[4] = {12, 34, 66, 88};
     for (int i = 0; i < 4; ++i) {
         objects.home_time_digits[i] = lv_img_create(s);
         lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
-        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 30);
+        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 43);
     }
     lv_obj_t *colon = lv_img_create(s);
     lv_img_set_src(colon, &pixel_digit_colon);
-    lv_obj_set_pos(colon, 57, 30);
+    lv_obj_set_pos(colon, 56, 43);
+    // 板内日期行：日期星期 + 迷你天气图标 + 温度
+    objects.home_date = pixel_label(s, "--/--", 13, 77, 66, 0x8C3A12, 0xFFE2A8);
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 5, 71);
-    objects.home_temp = pixel_label(s, "26C", 33, 79, 34, 0xFFD940);
+    lv_obj_set_pos(objects.home_weather_icon, 81, 75);
+    objects.home_temp = pixel_label(s, "26C", 95, 77, 20, 0xA03A0E, 0xFFE2A8);
     lv_obj_t *btn_menu = lv_img_create(s);
     lv_img_set_src(btn_menu, &pixel_btn_menu);
     lv_obj_set_pos(btn_menu, 4, 101);
