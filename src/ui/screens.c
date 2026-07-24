@@ -80,14 +80,6 @@ static lv_obj_t *shape(lv_obj_t *parent, int x, int y, int w, int h, int radius,
     return obj;
 }
 
-// 白色填充+深棕描边，冒险岛风格的高对比描边元素
-static lv_obj_t *outlined_shape(lv_obj_t *parent, int x, int y, int w, int h, int radius) {
-    lv_obj_t *obj = shape(parent, x, y, w, h, radius, 0xFFFFFF);
-    lv_obj_set_style_border_width(obj, 1, 0);
-    lv_obj_set_style_border_color(obj, lv_color_hex(0x2B1B10), 0);
-    return obj;
-}
-
 // 冒险岛式描边文字：阴影副本挂在user_data上，lvglSetLabel会同步文本
 static lv_obj_t *pixel_label(lv_obj_t *parent, const char *text, int x, int y, int w, uint32_t fill) {
     lv_obj_t *shadow = label(parent, text, x + 1, y + 1, w, &lv_font_unscii_8, 0x2B1B10);
@@ -102,16 +94,6 @@ static lv_obj_t *bar_track(lv_obj_t *parent, int x, int y, int w, int h) {
     lv_obj_set_style_border_width(obj, 1, 0);
     lv_obj_set_style_border_color(obj, lv_color_hex(0x2B1B10), 0);
     return obj;
-}
-
-static void time_digit(lv_obj_t *parent, int x, int y, lv_obj_t *segments[7]) {
-    segments[0] = outlined_shape(parent, x + 4, y, 12, 4, 2);
-    segments[1] = outlined_shape(parent, x + 16, y + 4, 4, 12, 2);
-    segments[2] = outlined_shape(parent, x + 16, y + 20, 4, 12, 2);
-    segments[3] = outlined_shape(parent, x + 4, y + 32, 12, 4, 2);
-    segments[4] = outlined_shape(parent, x, y + 20, 4, 12, 2);
-    segments[5] = outlined_shape(parent, x, y + 4, 4, 12, 2);
-    segments[6] = outlined_shape(parent, x + 4, y + 16, 12, 4, 2);
 }
 
 static const lv_font_t *font_for_label(const char *text) {
@@ -152,12 +134,16 @@ void create_screen_home() {
     objects.home_signal_bars[1] = signal_bar(s, 96, 13, 4, 8);
     objects.home_signal_bars[2] = signal_bar(s, 103, 10, 4, 11);
     objects.home_signal_bars[3] = signal_bar(s, 110, 7, 4, 14);
-    time_digit(s, 10, 31, objects.home_time_segments[0]);
-    time_digit(s, 34, 31, objects.home_time_segments[1]);
-    objects.home_time_colon_dots[0] = outlined_shape(s, 60, 40, 4, 4, 2);
-    objects.home_time_colon_dots[1] = outlined_shape(s, 60, 54, 4, 4, 2);
-    time_digit(s, 70, 31, objects.home_time_segments[2]);
-    time_digit(s, 94, 31, objects.home_time_segments[3]);
+    // 胖像素数字时钟：24x32数字 + 12x32冒号
+    static const int kDigitX[4] = {5, 31, 71, 97};
+    for (int i = 0; i < 4; ++i) {
+        objects.home_time_digits[i] = lv_img_create(s);
+        lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
+        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 30);
+    }
+    lv_obj_t *colon = lv_img_create(s);
+    lv_img_set_src(colon, &pixel_digit_colon);
+    lv_obj_set_pos(colon, 57, 30);
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
     lv_obj_set_pos(objects.home_weather_icon, 5, 71);

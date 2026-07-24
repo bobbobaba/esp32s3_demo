@@ -18,6 +18,17 @@ extern const lv_img_dsc_t pixel_icon_rain;
 extern const lv_img_dsc_t pixel_icon_snow;
 extern const lv_img_dsc_t pixel_btn_menu;
 extern const lv_img_dsc_t pixel_btn_ai;
+extern const lv_img_dsc_t pixel_digit_0;
+extern const lv_img_dsc_t pixel_digit_1;
+extern const lv_img_dsc_t pixel_digit_2;
+extern const lv_img_dsc_t pixel_digit_3;
+extern const lv_img_dsc_t pixel_digit_4;
+extern const lv_img_dsc_t pixel_digit_5;
+extern const lv_img_dsc_t pixel_digit_6;
+extern const lv_img_dsc_t pixel_digit_7;
+extern const lv_img_dsc_t pixel_digit_8;
+extern const lv_img_dsc_t pixel_digit_9;
+extern const lv_img_dsc_t pixel_digit_colon;
 
 #ifdef __cplusplus
 }

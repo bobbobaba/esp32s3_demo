@@ -2034,25 +2034,18 @@ void loadEezPage(UiPage page) {
 }
 
 void setHomeTimeDigit(uint8_t index, char value) {
-  static const bool kDigits[10][7] = {
-      {true, true, true, true, true, true, false},
-      {false, true, true, false, false, false, false},
-      {true, true, false, true, true, false, true},
-      {true, true, true, true, false, false, true},
-      {false, true, true, false, false, true, true},
-      {true, false, true, true, false, true, true},
-      {true, false, true, true, true, true, true},
-      {true, true, true, false, false, false, false},
-      {true, true, true, true, true, true, true},
-      {true, true, true, true, false, true, true},
+  static const lv_img_dsc_t *kDigits[10] = {
+      &pixel_digit_0, &pixel_digit_1, &pixel_digit_2, &pixel_digit_3, &pixel_digit_4,
+      &pixel_digit_5, &pixel_digit_6, &pixel_digit_7, &pixel_digit_8, &pixel_digit_9,
   };
-  const bool valid = index < 4 && value >= '0' && value <= '9';
-  const uint8_t digit = valid ? static_cast<uint8_t>(value - '0') : 0;
-  for (uint8_t segment = 0; segment < 7; ++segment) {
-    lv_obj_t *obj = ::objects.home_time_segments[index][segment];
-    if (!obj) continue;
-    if (valid && kDigits[digit][segment]) lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
-    else lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+  if (index >= 4) return;
+  lv_obj_t *img = ::objects.home_time_digits[index];
+  if (!img) return;
+  if (value >= '0' && value <= '9') {
+    lv_img_set_src(img, kDigits[value - '0']);
+    lv_obj_clear_flag(img, LV_OBJ_FLAG_HIDDEN);
+  } else {
+    lv_obj_add_flag(img, LV_OBJ_FLAG_HIDDEN);
   }
 }
 
@@ -2062,9 +2055,6 @@ void updateEezHomePage() {
   setHomeTimeDigit(1, now.length() >= 2 ? now[1] : '-');
   setHomeTimeDigit(2, now.length() >= 4 ? now[3] : '-');
   setHomeTimeDigit(3, now.length() >= 5 ? now[4] : '-');
-  for (lv_obj_t *dot : ::objects.home_time_colon_dots) {
-    if (dot) lv_obj_clear_flag(dot, LV_OBJ_FLAG_HIDDEN);
-  }
   lvglSetLabel(::objects.home_temp, weather.valid ?
       String(displayNumber(weather.temperature)) + "C" : String("--C"));
   const bool showSnow = weather.valid && ((weather.weatherCode >= 71 && weather.weatherCode <= 77) ||
