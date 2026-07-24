@@ -2090,8 +2090,18 @@ void updateEezHomePage() {
       constrain(static_cast<int>(serverStatus.load1m * 100.0f / serverStatus.cpuCount), 0, 100) : -1;
   const int memPercent = serverStatus.valid && isfinite(serverStatus.memoryUsedPercent) ?
       constrain(static_cast<int>(serverStatus.memoryUsedPercent), 0, 100) : -1;
-  lvglSetLabel(::objects.home_cpu, cpuPercent >= 0 ? String("CPU ") + cpuPercent + "%" : String("CPU --"));
-  lvglSetLabel(::objects.home_mem, memPercent >= 0 ? String("MEM ") + memPercent + "%" : String("MEM --"));
+  // 冒险岛式血条/蓝条：按百分比伸缩填充宽度（底槽内宽40px）
+  auto setHomeBar = [](lv_obj_t *bar, int percent) {
+    if (!bar) return;
+    if (percent < 0) {
+      lv_obj_add_flag(bar, LV_OBJ_FLAG_HIDDEN);
+      return;
+    }
+    lv_obj_clear_flag(bar, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_width(bar, constrain(percent * 40 / 100, 2, 40));
+  };
+  setHomeBar(::objects.home_cpu_bar, cpuPercent);
+  setHomeBar(::objects.home_mem_bar, memPercent);
   int signalBars = 0;
   if (WiFi.status() == WL_CONNECTED) {
     const int rssi = WiFi.RSSI();
@@ -2103,7 +2113,7 @@ void updateEezHomePage() {
   for (uint8_t i = 0; i < 4; ++i) {
     if (!::objects.home_signal_bars[i]) continue;
     lv_obj_set_style_bg_color(::objects.home_signal_bars[i],
-        lv_color_hex(i < signalBars ? 0xFFFFFF : 0x64748B), 0);
+        lv_color_hex(i < signalBars ? 0x8CE44C : 0x566072), 0);
   }
 }
 

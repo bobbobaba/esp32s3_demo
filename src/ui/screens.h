@@ -37,8 +37,8 @@ typedef struct _objects_t {
     lv_obj_t *home_time_segments[4][7];
     lv_obj_t *home_time_colon_dots[2];
     lv_obj_t *home_temp;
-    lv_obj_t *home_cpu;
-    lv_obj_t *home_mem;
+    lv_obj_t *home_cpu_bar;
+    lv_obj_t *home_mem_bar;
     lv_obj_t *home_signal_bars[4];
     lv_obj_t *home_bg;
     lv_obj_t *home_cat;

@@ -16,6 +16,8 @@ extern const lv_img_dsc_t pixel_icon_sunny;
 extern const lv_img_dsc_t pixel_icon_cloudy;
 extern const lv_img_dsc_t pixel_icon_rain;
 extern const lv_img_dsc_t pixel_icon_snow;
+extern const lv_img_dsc_t pixel_btn_menu;
+extern const lv_img_dsc_t pixel_btn_ai;
 
 #ifdef __cplusplus
 }
