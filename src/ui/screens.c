@@ -118,18 +118,18 @@ void create_screen_home() {
     lv_img_set_src(objects.home_bg, &pixel_bg_day);
     lv_obj_set_pos(objects.home_bg, 0, 0);
 
-    // 顶部：真实天气图标 | CPU/MEM条(标签在右侧) | WiFi
+    // 顶部：更大天气图标 | CPU/MEM条(标签在右侧) | WiFi
     objects.home_weather_icon = lv_img_create(s);
     lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 2, 2);
+    lv_obj_set_pos(objects.home_weather_icon, 2, 1);
 
-    bar_track(s, 18, 3, 48, 7);
-    objects.home_cpu_bar = shape(s, 19, 4, 2, 5, 1, 0xE84545);
-    pixel_label(s, "CPU", 68, 2, 24, 0xFFFFFF, 0x2B1B10);
+    bar_track(s, 28, 3, 42, 7);
+    objects.home_cpu_bar = shape(s, 29, 4, 2, 5, 1, 0xE84545);
+    pixel_label(s, "CPU", 72, 2, 24, 0xFFFFFF, 0x2B1B10);
 
-    bar_track(s, 18, 13, 48, 7);
-    objects.home_mem_bar = shape(s, 19, 14, 2, 5, 1, 0x3D7BFF);
-    pixel_label(s, "MEM", 68, 12, 24, 0xFFFFFF, 0x2B1B10);
+    bar_track(s, 28, 13, 42, 7);
+    objects.home_mem_bar = shape(s, 29, 14, 2, 5, 1, 0x3D7BFF);
+    pixel_label(s, "MEM", 72, 12, 24, 0xFFFFFF, 0x2B1B10);
 
     objects.home_wifi_icon = lv_img_create(s);
     lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
@@ -153,9 +153,10 @@ void create_screen_home() {
     lv_obj_t *colon = lv_img_create(s);
     lv_img_set_src(colon, &pixel_digit_colon);
     lv_obj_set_pos(colon, 32, 51);
-    // 日期/温度用更小字体，天气图标已移到左上角
-    objects.home_date = tiny_pixel_label(s, "--/--", 12, 72, 40, 0x8C3A12, 0xFFE2A8);
-    objects.home_temp = tiny_pixel_label(s, "26C", 18, 82, 32, 0xA03A0E, 0xFFE2A8);
+    // 日期+气温同一行，放在板身木纹区内
+    objects.home_date = tiny_pixel_label(s, "--/-- --C", 10, 72, 52, 0x8C3A12, 0xFFE2A8);
+    objects.home_temp = NULL;  // 气温合并进 home_date 一行显示
+
 
     // 动态小猫站在地面右侧（48高，y=52 脚底贴 y=100）
     objects.home_cat = lv_img_create(s);

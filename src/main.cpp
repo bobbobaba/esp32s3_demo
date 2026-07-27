@@ -2058,8 +2058,6 @@ void updateEezHomePage() {
   setHomeTimeDigit(1, now.length() >= 2 ? now[1] : '-');
   setHomeTimeDigit(2, now.length() >= 4 ? now[3] : '-');
   setHomeTimeDigit(3, now.length() >= 5 ? now[4] : '-');
-  lvglSetLabel(::objects.home_temp, weather.valid ?
-      String(displayNumber(weather.temperature)) + "C" : String("--C"));
   const bool showSnow = weather.valid && ((weather.weatherCode >= 71 && weather.weatherCode <= 77) ||
       weather.weatherCode == 85 || weather.weatherCode == 86);
   const bool showRain = weather.valid && !showSnow && ((weather.weatherCode >= 51 && weather.weatherCode <= 67) ||
@@ -2074,13 +2072,14 @@ void updateEezHomePage() {
   struct tm homeNow = {};
   const bool homeTimeValid = getLocalTime(&homeNow, 10);
   const bool homeIsDay = !homeTimeValid || (homeNow.tm_hour >= 7 && homeNow.tm_hour < 19);
-  char homeDateBuf[16];
+  // 日期+气温同一行，避免超出公告板
+  char homeDateBuf[24];
+  const String tempText = weather.valid ? String(displayNumber(weather.temperature)) + "C" : String("--C");
   if (homeTimeValid) {
-    // 小公告板只显示月日，省宽度
-    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d",
-        homeNow.tm_mon + 1, homeNow.tm_mday);
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d %s",
+        homeNow.tm_mon + 1, homeNow.tm_mday, tempText.c_str());
   } else {
-    snprintf(homeDateBuf, sizeof(homeDateBuf), "--/--");
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "--/-- %s", tempText.c_str());
   }
   lvglSetLabel(::objects.home_date, homeDateBuf);
   if (::objects.home_bg) lv_img_set_src(::objects.home_bg, homeIsDay ? &pixel_bg_day : &pixel_bg_night);
@@ -2103,8 +2102,8 @@ void updateEezHomePage() {
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_width(bar, constrain(percent * maxWidth / 100, 2, maxWidth));
   };
-  setHomeBar(::objects.home_cpu_bar, cpuPercent, 46);
-  setHomeBar(::objects.home_mem_bar, memPercent, 46);
+  setHomeBar(::objects.home_cpu_bar, cpuPercent, 40);
+  setHomeBar(::objects.home_mem_bar, memPercent, 40);
   int signalBars = 0;
   if (WiFi.status() == WL_CONNECTED) {
     const int rssi = WiFi.RSSI();
