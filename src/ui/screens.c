@@ -107,96 +107,56 @@ void create_screen_home() {
     objects.home_bg = lv_img_create(s);
     lv_img_set_src(objects.home_bg, &pixel_bg_day);
     lv_obj_set_pos(objects.home_bg, 0, 0);
-    // 方案A修正：左侧公告板62x60，数字居中不溢出，天气在板身内
-    pixel_label(s, "LV1", 3, 3, 24, 0xFFDC50, 0x2B1B10);
-    pixel_label(s, "HP", 80, 2, 16, 0xFFB4B4, 0x2B1B10);
+
+    // 顶部：CPU/MEM 状态条 + WiFi
+    pixel_label(s, "CPU", 4, 4, 24, 0xFFFFFF, 0x2B1B10);
     bar_track(s, 28, 3, 50, 7);
     objects.home_cpu_bar = shape(s, 29, 4, 2, 5, 1, 0xE84545);
-    pixel_label(s, "MP", 80, 11, 16, 0xB4C8FF, 0x2B1B10);
-    bar_track(s, 28, 12, 50, 7);
-    objects.home_mem_bar = shape(s, 29, 13, 2, 5, 1, 0x3D7BFF);
+    pixel_label(s, "MEM", 4, 14, 24, 0xFFFFFF, 0x2B1B10);
+    bar_track(s, 28, 13, 50, 7);
+    objects.home_mem_bar = shape(s, 29, 14, 2, 5, 1, 0x3D7BFF);
     objects.home_wifi_icon = lv_img_create(s);
     lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
     lv_obj_set_pos(objects.home_wifi_icon, 102, 2);
 
-    lv_obj_t *board = lv_img_create(s);
-    lv_img_set_src(board, &pixel_board);
-    lv_obj_set_pos(board, 2, 20);
-    // 12x16数字 + 6x16冒号，总宽54，板宽62居中：x=6起
-    static const int kDigitX[4] = {6, 18, 36, 48};
-    for (int i = 0; i < 4; ++i) {
-        objects.home_time_digits[i] = lv_img_create(s);
-        lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
-        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 30);
-    }
-    lv_obj_t *colon = lv_img_create(s);
-    lv_img_set_src(colon, &pixel_digit_colon);
-    lv_obj_set_pos(colon, 30, 30);
-    objects.home_date = pixel_label(s, "--/--", 8, 48, 36, 0x8C3A12, 0xFFE2A8);
-    objects.home_weather_icon = lv_img_create(s);
-    lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 8, 58);
-    objects.home_temp = pixel_label(s, "26C", 22, 60, 28, 0xA03A0E, 0xFFE2A8);
-
-    lv_obj_t *leaf = lv_img_create(s);
-    lv_img_set_src(leaf, &pixel_adv_leaf);
-    lv_obj_set_pos(leaf, 52, 28);  // 板右上角，避开日期天气行
-    lv_obj_t *star1 = lv_img_create(s);
-    lv_img_set_src(star1, &pixel_adv_star);
-    lv_obj_set_pos(star1, 68, 24);
-    lv_obj_t *star2 = lv_img_create(s);
-    lv_img_set_src(star2, &pixel_adv_star);
-    lv_obj_set_pos(star2, 74, 38);
-
-    objects.home_cat = lv_img_create(s);
-    lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
-    lv_obj_set_pos(objects.home_cat, 84, 56);
-
-    lv_obj_t *slime = lv_img_create(s);
-    lv_img_set_src(slime, &pixel_adv_slime);
-    lv_obj_set_pos(slime, 48, 82);
-    lv_obj_t *chest = lv_img_create(s);
-    lv_img_set_src(chest, &pixel_adv_chest);
-    lv_obj_set_pos(chest, 64, 84);
-    lv_obj_t *coin1 = lv_img_create(s);
-    lv_img_set_src(coin1, &pixel_adv_coin);
-    lv_obj_set_pos(coin1, 78, 88);
-    lv_obj_t *coin2 = lv_img_create(s);
-    lv_img_set_src(coin2, &pixel_adv_coin);
-    lv_obj_set_pos(coin2, 55, 92);
-    lv_obj_t *orb = lv_img_create(s);
-    lv_img_set_src(orb, &pixel_adv_orb);
-    lv_obj_set_pos(orb, 112, 68);
-    lv_obj_t *potion = lv_img_create(s);
-    lv_img_set_src(potion, &pixel_adv_potion);
-    lv_obj_set_pos(potion, 70, 76);
-    lv_obj_t *scroll = lv_img_create(s);
-    lv_img_set_src(scroll, &pixel_adv_scroll);
-    lv_obj_set_pos(scroll, 95, 80);
-
+    // 底部泥地栏（先铺，公告板腿站在地面上）
     lv_obj_t *ground = lv_img_create(s);
     lv_img_set_src(ground, &pixel_ground);
     lv_obj_set_pos(ground, 0, 100);
-    lv_obj_t *chat = lv_img_create(s);
-    lv_img_set_src(chat, &pixel_hud_chat);
-    lv_obj_set_pos(chat, 3, 106);
-    // 对话框本身已有信息条纹理，不再叠 AI 文字
-    bar_track(s, 46, 108, 30, 7);
-    objects.home_exp_bar = shape(s, 47, 109, 2, 5, 1, 0xFFC832);
-    pixel_label(s, "EXP", 46, 117, 24, 0xFFDC78, 0x2B1B10);
-    // 四个按钮总宽56，从x=78起，末尾刚好到128
-    lv_obj_t *btn_menu = lv_img_create(s);
-    lv_img_set_src(btn_menu, &pixel_hud_menu);
-    lv_obj_set_pos(btn_menu, 78, 108);
-    lv_obj_t *btn_chat = lv_img_create(s);
-    lv_img_set_src(btn_chat, &pixel_hud_chat_btn);
-    lv_obj_set_pos(btn_chat, 90, 108);
-    lv_obj_t *btn_bag = lv_img_create(s);
-    lv_img_set_src(btn_bag, &pixel_hud_bag);
-    lv_obj_set_pos(btn_bag, 102, 108);
-    lv_obj_t *btn_quest = lv_img_create(s);
-    lv_img_set_src(btn_quest, &pixel_hud_quest);
-    lv_obj_set_pos(btn_quest, 114, 108);
+
+    // 木质公告板立在地面上：板高60，y=41 时腿底落在地面顶沿(y=100)
+    lv_obj_t *board = lv_img_create(s);
+    lv_img_set_src(board, &pixel_board);
+    lv_obj_set_pos(board, 4, 41);
+    static const int kDigitX[4] = {8, 20, 38, 50};
+    for (int i = 0; i < 4; ++i) {
+        objects.home_time_digits[i] = lv_img_create(s);
+        lv_img_set_src(objects.home_time_digits[i], &pixel_digit_0);
+        lv_obj_set_pos(objects.home_time_digits[i], kDigitX[i], 51);
+    }
+    lv_obj_t *colon = lv_img_create(s);
+    lv_img_set_src(colon, &pixel_digit_colon);
+    lv_obj_set_pos(colon, 32, 51);
+    objects.home_date = pixel_label(s, "--/--", 10, 69, 36, 0x8C3A12, 0xFFE2A8);
+    objects.home_weather_icon = lv_img_create(s);
+    lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
+    lv_obj_set_pos(objects.home_weather_icon, 10, 79);
+    objects.home_temp = pixel_label(s, "26C", 24, 81, 28, 0xA03A0E, 0xFFE2A8);
+
+    // 动态小猫站在地面右侧（48高，y=52 脚底贴 y=100）
+    objects.home_cat = lv_img_create(s);
+    lv_img_set_src(objects.home_cat, &pixel_cat_idle0);
+    lv_obj_set_pos(objects.home_cat, 76, 52);
+
+    // 底栏只保留 4 个圆形图标，水平居中
+    static const lv_img_dsc_t *kHudBtns[4] = {
+        &pixel_hud_menu, &pixel_hud_chat_btn, &pixel_hud_bag, &pixel_hud_quest
+    };
+    for (int i = 0; i < 4; ++i) {
+        lv_obj_t *btn = lv_img_create(s);
+        lv_img_set_src(btn, kHudBtns[i]);
+        lv_obj_set_pos(btn, 34 + i * 18, 108);
+    }
     tick_screen_home();
 }
 

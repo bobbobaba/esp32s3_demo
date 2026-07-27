@@ -2100,8 +2100,8 @@ void updateEezHomePage() {
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_width(bar, constrain(percent * maxWidth / 100, 2, maxWidth));
   };
-  setHomeBar(::objects.home_cpu_bar, cpuPercent, 48);  // HP
-  setHomeBar(::objects.home_mem_bar, memPercent, 48);  // MP
+  setHomeBar(::objects.home_cpu_bar, cpuPercent, 48);
+  setHomeBar(::objects.home_mem_bar, memPercent, 48);
   int signalBars = 0;
   if (WiFi.status() == WL_CONNECTED) {
     const int rssi = WiFi.RSSI();
@@ -2110,8 +2110,6 @@ void updateEezHomePage() {
     else if (rssi >= -78) signalBars = 2;
     else signalBars = 1;
   }
-  // EXP条映射信号强度（满格=100%）
-  setHomeBar(::objects.home_exp_bar, signalBars > 0 ? signalBars * 25 : 5, 28);
   static const lv_img_dsc_t *kWifiStates[5] = {
       &pixel_wifi_0, &pixel_wifi_1, &pixel_wifi_2, &pixel_wifi_3, &pixel_wifi_4,
   };
