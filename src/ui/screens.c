@@ -74,6 +74,16 @@ static lv_obj_t *pixel_label(lv_obj_t *parent, const char *text, int x, int y, i
     return main;
 }
 
+// 更小的像素字：用 montserrat_8 近似缩小，仍保持描边可读
+static lv_obj_t *tiny_pixel_label(lv_obj_t *parent, const char *text, int x, int y, int w, uint32_t fill, uint32_t shadow_color) {
+    lv_obj_t *shadow = label(parent, text, x + 1, y + 1, w, &lv_font_montserrat_8, shadow_color);
+    lv_obj_t *main = label(parent, text, x, y, w, &lv_font_montserrat_8, fill);
+    lv_obj_set_style_text_letter_space(shadow, -1, 0);
+    lv_obj_set_style_text_letter_space(main, -1, 0);
+    lv_obj_set_user_data(main, shadow);
+    return main;
+}
+
 // 血条/蓝条底槽
 static lv_obj_t *bar_track(lv_obj_t *parent, int x, int y, int w, int h) {
     lv_obj_t *obj = shape(parent, x, y, w, h, 2, 0x3A3A44);
@@ -108,13 +118,19 @@ void create_screen_home() {
     lv_img_set_src(objects.home_bg, &pixel_bg_day);
     lv_obj_set_pos(objects.home_bg, 0, 0);
 
-    // 顶部：CPU/MEM 状态条 + WiFi
-    pixel_label(s, "CPU", 4, 4, 24, 0xFFFFFF, 0x2B1B10);
-    bar_track(s, 28, 3, 50, 7);
-    objects.home_cpu_bar = shape(s, 29, 4, 2, 5, 1, 0xE84545);
-    pixel_label(s, "MEM", 4, 14, 24, 0xFFFFFF, 0x2B1B10);
-    bar_track(s, 28, 13, 50, 7);
-    objects.home_mem_bar = shape(s, 29, 14, 2, 5, 1, 0x3D7BFF);
+    // 顶部：真实天气图标 | CPU/MEM条(标签在右侧) | WiFi
+    objects.home_weather_icon = lv_img_create(s);
+    lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
+    lv_obj_set_pos(objects.home_weather_icon, 2, 2);
+
+    bar_track(s, 18, 3, 48, 7);
+    objects.home_cpu_bar = shape(s, 19, 4, 2, 5, 1, 0xE84545);
+    pixel_label(s, "CPU", 68, 2, 24, 0xFFFFFF, 0x2B1B10);
+
+    bar_track(s, 18, 13, 48, 7);
+    objects.home_mem_bar = shape(s, 19, 14, 2, 5, 1, 0x3D7BFF);
+    pixel_label(s, "MEM", 68, 12, 24, 0xFFFFFF, 0x2B1B10);
+
     objects.home_wifi_icon = lv_img_create(s);
     lv_img_set_src(objects.home_wifi_icon, &pixel_wifi_0);
     lv_obj_set_pos(objects.home_wifi_icon, 102, 2);
@@ -124,7 +140,7 @@ void create_screen_home() {
     lv_img_set_src(ground, &pixel_ground);
     lv_obj_set_pos(ground, 0, 100);
 
-    // 木质公告板立在地面上：板高60，y=41 时腿底落在地面顶沿(y=100)
+    // 木质公告板立在地面上
     lv_obj_t *board = lv_img_create(s);
     lv_img_set_src(board, &pixel_board);
     lv_obj_set_pos(board, 4, 41);
@@ -137,11 +153,9 @@ void create_screen_home() {
     lv_obj_t *colon = lv_img_create(s);
     lv_img_set_src(colon, &pixel_digit_colon);
     lv_obj_set_pos(colon, 32, 51);
-    objects.home_date = pixel_label(s, "--/--", 10, 69, 36, 0x8C3A12, 0xFFE2A8);
-    objects.home_weather_icon = lv_img_create(s);
-    lv_img_set_src(objects.home_weather_icon, &pixel_icon_sunny);
-    lv_obj_set_pos(objects.home_weather_icon, 10, 79);
-    objects.home_temp = pixel_label(s, "26C", 24, 81, 28, 0xA03A0E, 0xFFE2A8);
+    // 日期/温度用更小字体，天气图标已移到左上角
+    objects.home_date = tiny_pixel_label(s, "--/--", 12, 72, 40, 0x8C3A12, 0xFFE2A8);
+    objects.home_temp = tiny_pixel_label(s, "26C", 18, 82, 32, 0xA03A0E, 0xFFE2A8);
 
     // 动态小猫站在地面右侧（48高，y=52 脚底贴 y=100）
     objects.home_cat = lv_img_create(s);

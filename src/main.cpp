@@ -1947,10 +1947,13 @@ void lvglSetLabel(lv_obj_t *label, const String &text) {
       break;
     }
   }
-  // 像素风界面标签（unscii/simsun）保持点阵字体，不再重置回默认字体
+  // 像素风界面标签保持原字体：unscii / montserrat_8(小号) / simsun
   const lv_font_t *current = lv_obj_get_style_text_font(label, 0);
   if (current == &lv_font_unscii_8 || current == &lv_font_simsun_16_cjk) {
     lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : &lv_font_unscii_8, 0);
+    lv_obj_set_style_text_letter_space(label, hasCjk ? 0 : -1, 0);
+  } else if (current == &lv_font_montserrat_8) {
+    lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : &lv_font_montserrat_8, 0);
     lv_obj_set_style_text_letter_space(label, hasCjk ? 0 : -1, 0);
   } else {
     lv_obj_set_style_text_font(label, hasCjk ? &lv_font_simsun_16_cjk : LV_FONT_DEFAULT, 0);
@@ -2100,8 +2103,8 @@ void updateEezHomePage() {
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_width(bar, constrain(percent * maxWidth / 100, 2, maxWidth));
   };
-  setHomeBar(::objects.home_cpu_bar, cpuPercent, 48);
-  setHomeBar(::objects.home_mem_bar, memPercent, 48);
+  setHomeBar(::objects.home_cpu_bar, cpuPercent, 46);
+  setHomeBar(::objects.home_mem_bar, memPercent, 46);
   int signalBars = 0;
   if (WiFi.status() == WL_CONNECTED) {
     const int rssi = WiFi.RSSI();
