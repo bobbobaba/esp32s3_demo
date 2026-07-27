@@ -154,7 +154,7 @@ void create_screen_home() {
     lv_img_set_src(colon, &pixel_digit_colon);
     lv_obj_set_pos(colon, 32, 51);
     // 日期+气温同一行，放在板身木纹区内
-    objects.home_date = tiny_pixel_label(s, "--/-- --C", 10, 72, 52, 0x8C3A12, 0xFFE2A8);
+    objects.home_date = tiny_pixel_label(s, "--/--   --C", 10, 72, 54, 0x8C3A12, 0xFFE2A8);
     objects.home_temp = NULL;  // 气温合并进 home_date 一行显示
 
 

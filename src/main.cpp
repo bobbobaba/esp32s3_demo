@@ -2076,10 +2076,10 @@ void updateEezHomePage() {
   char homeDateBuf[24];
   const String tempText = weather.valid ? String(displayNumber(weather.temperature)) + "C" : String("--C");
   if (homeTimeValid) {
-    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d %s",
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "%02d/%02d   %s",
         homeNow.tm_mon + 1, homeNow.tm_mday, tempText.c_str());
   } else {
-    snprintf(homeDateBuf, sizeof(homeDateBuf), "--/-- %s", tempText.c_str());
+    snprintf(homeDateBuf, sizeof(homeDateBuf), "--/--   %s", tempText.c_str());
   }
   lvglSetLabel(::objects.home_date, homeDateBuf);
   if (::objects.home_bg) lv_img_set_src(::objects.home_bg, homeIsDay ? &pixel_bg_day : &pixel_bg_night);
