@@ -6,6 +6,7 @@
 
 - `esp32s3_watch_carrier.kicad_pro`: KiCad 9 项目文件
 - `esp32s3_watch_carrier.kicad_pcb`: PCB 板文件
+- `open_kicad_watch.sh`: 兼容启动脚本，强制使用 Mesa 软件 OpenGL，避免部分 NVIDIA GLX 环境下 PCB 编辑器闪退
 
 ## 当前设计范围
 
@@ -38,3 +39,13 @@
 - 屏幕、麦克风、MAX98357A、MPU6050 模块的实际排针方向。
 - 是否使用 5V 给 MAX98357A 供电，还是统一 3.3V。
 - 最终手表外壳尺寸、安装孔位置、电池/充电模块位置。
+
+## 打开方式
+
+如果直接打开 KiCad/PCB Editor 闪退，使用：
+
+```bash
+./open_kicad_watch.sh
+```
+
+本机实测闪退点在 `libGLX_nvidia.so.0` 创建 OpenGL 上下文，脚本已设置 `__GLX_VENDOR_LIBRARY_NAME=mesa` 和 `MESA_LOADER_DRIVER_OVERRIDE=llvmpipe` 避开该问题。

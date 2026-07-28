@@ -9,6 +9,7 @@
 - 新建 `boards/kicad_watch_pcb/`，包含 KiCad 9 项目、PCB 板文件和硬件映射说明。
 - 按当前固件 GPIO 表放置 ESP32-S3 GPIO 总线、ST7735 屏幕、I2S 麦克风、MAX98357A、MPU6050、电源和 P4/P5/P6/P7 板载按键。
 - 导出 SVG 预览图，便于不用打开 KiCad 也能检查布局。
+- 补充 KiCad 兼容启动脚本，强制 Mesa 软件 OpenGL，避免 NVIDIA GLX 下 PCB 编辑器闪退。
 
 ## 2026-07-24
 
