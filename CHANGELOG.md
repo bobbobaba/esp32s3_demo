@@ -4,6 +4,13 @@
 
 ## 2026-07-28
 
+### KiCad PCB 增加信号线布线基线
+
+- 在 `esp32s3_watch_carrier.kicad_pcb` 中布通 ST7735 屏幕、I2S 麦克风、MAX98357A 和 MPU6050 的主要信号线。
+- 屏幕排针和 ESP32-S3 排针顺序相反，改用顶层/底层分层绕线，避免同层交叉。
+- 导出 KiCad SVG 预览图，便于检查顶层、底层、丝印和板框。
+- 当前 DRC 已无短路/间距违规；电源、GND 和 P4/P5/P6/P7 按钮仍保留为待布线项。
+
 ### 新增 KiCad 转接底板初版
 
 - 新建 `boards/kicad_watch_pcb/`，包含 KiCad 9 项目、PCB 板文件和硬件映射说明。
