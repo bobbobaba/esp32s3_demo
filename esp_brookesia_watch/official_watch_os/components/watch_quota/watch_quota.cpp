@@ -389,6 +389,10 @@ void quota_home_text(char *buffer, size_t buffer_size)
         std::snprintf(buffer, buffer_size, "Quota --");
         return;
     }
+    if (snapshot.today_tokens <= 0.0 && snapshot.total_tokens <= 0.0) {
+        std::snprintf(buffer, buffer_size, quota_refresh_is_running() ? "Quota loading..." : "Quota --");
+        return;
+    }
     char today_tokens[16] = {};
     compact_number(today_tokens, sizeof(today_tokens), snapshot.today_tokens);
     const char *currency = snapshot.currency;

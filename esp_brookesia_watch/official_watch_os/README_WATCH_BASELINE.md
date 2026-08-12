@@ -79,9 +79,9 @@ idf.py build
 当前构建结果：
 
 - App：`build/esp-brookesia.bin`
-- 版本：`0.1.66`
-- 大小：约 3.9 MB，二进制大小 `0x3de5e0`
-- SHA256：`9aa8c98d9fe9aec31717a31a2bd9acd6cfca5cf00e998b30514d7108713172ce`
+- 版本：`0.1.67`
+- 大小：约 3.9 MB，二进制大小 `0x3de660`
+- SHA256：`157e0e3e6ec15d56d275cc37a6417805d1265b15aea29db28dd1573886e3fb55`
 - OTA app 分区：11 MB
 - 余量：约 65%
 
@@ -205,6 +205,18 @@ OTA 写入策略：
 - 写入完成后执行 `esp_ota_end()` 校验。
 - 校验成功后 `esp_ota_set_boot_partition()`，再 `esp_restart()`。
 - OTA 不写 NVS/LittleFS，因此保留 WiFi 记录和已下载应用。
+
+## 2026-08-12 0.1.67 watch home quota loading state
+
+- WatchHome / Quota：
+  - 首页 Quota 摘要在本机缓存还没有真实 token 时，不再显示 `0 tok`；
+  - `quota_refresh_async()` 正在运行时显示 `Quota loading...`，没有缓存且未刷新时显示 `Quota --`；
+  - 只有云端真实 usage 刷新成功并写入 NVS 后，才显示今日 token 和本月/今日成本。
+- Release：`releases/0.1.67-watch-os-brookesia.bin`
+- SHA256：`157e0e3e6ec15d56d275cc37a6417805d1265b15aea29db28dd1573886e3fb55`
+- OTA 固件 ID：线刷验证版本，未推 OTA
+- 已本地构建通过：app 分区余量约 65%；固件镜像版本头确认为 `0.1.67`。
+- 本版本用于 OTA 失败后的线刷验证；不刷 NVS / LittleFS / SD / otadata。
 
 ## 2026-08-12 0.1.66 ccswitch live config / usage-only display
 

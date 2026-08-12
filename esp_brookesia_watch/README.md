@@ -34,10 +34,16 @@ esp_brookesia_watch/
 
 - 工程：`/home/bo/esp_brookesia_watch/official_watch_os`
 - 构建输出：`official_watch_os/build/esp-brookesia.bin`
-- 最新 release：`releases/0.1.66-watch-os-brookesia.bin`
-- 最新 SHA256：`9aa8c98d9fe9aec31717a31a2bd9acd6cfca5cf00e998b30514d7108713172ce`
-- 最新 OTA 固件 ID：`144`
+- 最新 release：`releases/0.1.67-watch-os-brookesia.bin`
+- 最新 SHA256：`157e0e3e6ec15d56d275cc37a6417805d1265b15aea29db28dd1573886e3fb55`
+- 最新 OTA 固件 ID：线刷验证版本，未推 OTA
 - 最新 OTA URL：私有 OTA 后台保存，公开 GitHub 文档不记录真实地址。
+
+0.1.67 新增：
+
+- WatchHome / Quota：首页 Quota 摘要在本机缓存还没有真实 token 时不再显示 `0 tok`，改为 `Quota loading...` 或 `Quota --`；只有云端真实 usage 刷新成功后才显示今日 token。
+- 本版本用于线刷验证 OTA 失败后的首页显示问题；不刷 NVS / LittleFS / SD / otadata。
+- 已本地构建通过：app 分区余量约 65%；固件镜像版本头确认为 `0.1.67`。
 
 0.1.66 新增：
 
