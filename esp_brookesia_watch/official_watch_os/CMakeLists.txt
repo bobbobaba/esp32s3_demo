@@ -4,7 +4,7 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(esp-brookesia VERSION 0.1.65)
+project(esp-brookesia VERSION 0.1.66)
 
 idf_build_get_property(build_components BUILD_COMPONENTS)
 if("espressif__esp-dsp" IN_LIST build_components)

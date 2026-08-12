@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import calendar
 import sqlite3
@@ -42,7 +43,7 @@ from pathlib import Path
 from urllib import request, error
 
 
-DEFAULT_BASE_URL = "http://example.invalid/<PRIVATE_OTA_PATH>"
+DEFAULT_BASE_URL = "<PRIVATE_OTA_BASE_URL>"
 DEFAULT_USERNAME = "<PRIVATE_USER>"
 DEFAULT_PASSWORD = "<PRIVATE_PASSWORD>"
 DEFAULT_CCSWITCH_DB = Path.home() / ".cc-switch/cc-switch.db"
@@ -116,6 +117,50 @@ def read_decimal(row: sqlite3.Row | None, key: str) -> Decimal:
     if row is None:
         return Decimal("0")
     return decimal_from_db(row[key])
+
+
+def parse_provider_settings(raw_settings: str | None) -> tuple[str, str]:
+    if not raw_settings:
+        return "", ""
+    try:
+        settings = json.loads(raw_settings)
+    except json.JSONDecodeError:
+        return "", ""
+    if not isinstance(settings, dict):
+        return "", ""
+    auth = settings.get("auth") if isinstance(settings.get("auth"), dict) else {}
+    api_key = str(
+        auth.get("OPENAI_API_KEY")
+        or auth.get("ANTHROPIC_AUTH_TOKEN")
+        or auth.get("GOOGLE_API_KEY")
+        or auth.get("API_KEY")
+        or ""
+    ).strip()
+    config = str(settings.get("config") or "")
+    base_url = ""
+    match = re.search(r'base_url\s*=\s*"([^"]+)"', config)
+    if match:
+        base_url = match.group(1).strip()
+    return base_url, api_key
+
+
+def usage_candidate_urls(base_url: str) -> list[str]:
+    base = base_url.strip().rstrip("/")
+    if not base:
+        return []
+    candidates = [base + "/usage"]
+    if base.endswith("/v1"):
+        candidates.append(base[:-3] + "/usage")
+        candidates.append(base + "/usage")
+    else:
+        candidates.append(base + "/v1/usage")
+    result: list[str] = []
+    seen = set()
+    for item in candidates:
+        if item and item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
 
 
 def query_usage_rollups(
@@ -394,7 +439,7 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
             provider = conn.execute(
                 """
                 SELECT id, app_type, name, provider_type, limit_daily_usd, limit_monthly_usd,
-                       meta, website_url,
+                       meta, website_url, settings_config,
                        cost_multiplier, is_current
                 FROM providers
                 WHERE app_type = ? AND id = ?
@@ -405,7 +450,7 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
             provider = conn.execute(
                 """
                 SELECT id, app_type, name, provider_type, limit_daily_usd, limit_monthly_usd,
-                       meta, website_url,
+                       meta, website_url, settings_config,
                        cost_multiplier, is_current
                 FROM providers
                 WHERE app_type = ? AND is_current = 1
@@ -418,7 +463,7 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
             provider = conn.execute(
                 """
                 SELECT id, app_type, name, provider_type, limit_daily_usd, limit_monthly_usd,
-                       meta, website_url,
+                       meta, website_url, settings_config,
                        cost_multiplier, is_current
                 FROM providers
                 WHERE app_type = ?
@@ -433,8 +478,9 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
         usage_script = meta.get("usage_script") if isinstance(meta, dict) else {}
         if not isinstance(usage_script, dict):
             usage_script = {}
-        base_url = str(usage_script.get("baseUrl") or provider["website_url"] or "").strip()
-        api_key = str(usage_script.get("apiKey") or "").strip()
+        settings_base_url, settings_api_key = parse_provider_settings(provider["settings_config"])
+        base_url = str(usage_script.get("baseUrl") or settings_base_url or provider["website_url"] or "").strip()
+        api_key = str(usage_script.get("apiKey") or settings_api_key or "").strip()
         provider_name = str(provider["name"] or provider["id"])
         provider_id_value = str(provider["id"])
         provider_type = str(provider["provider_type"] or app_type)
@@ -454,17 +500,20 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
         request_url = ""
         live_error = ""
         if base_url and api_key and usage_script.get("enabled") is not False:
-            request_url = base_url.rstrip("/") + "/v1/usage"
-            try:
-                req = request.Request(request_url, method="GET")
-                req.add_header("Authorization", f"Bearer {api_key}")
-                req.add_header("Accept", "application/json")
-                req.add_header("User-Agent", "cc-switch/1.0")
-                with request.urlopen(req, timeout=20) as resp:
-                    usage_response = json.loads(resp.read().decode("utf-8"))
-                usage_payload = load_json_response_payload(usage_response)
-            except (error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
-                live_error = f"{type(exc).__name__}: {exc}"
+            for candidate_url in usage_candidate_urls(base_url):
+                request_url = candidate_url
+                try:
+                    req = request.Request(candidate_url, method="GET")
+                    req.add_header("Authorization", f"Bearer {api_key}")
+                    req.add_header("Accept", "application/json")
+                    req.add_header("User-Agent", "cc-switch/1.0")
+                    with request.urlopen(req, timeout=20) as resp:
+                        usage_response = json.loads(resp.read().decode("utf-8"))
+                    usage_payload = load_json_response_payload(usage_response)
+                    live_error = ""
+                    break
+                except (error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+                    live_error = f"{type(exc).__name__}: {exc}"
 
     limit = Decimal(str(usage_payload["limit_amount"])) if usage_payload else decimal_from_db(provider["limit_monthly_usd"])
     used = Decimal(str(usage_payload["used_amount"])) if usage_payload else Decimal(str(total_usage.get("actual_cost", 0.0)))
@@ -491,7 +540,7 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
     if usage_payload and status == "balance_only":
         note += "; provider exposes live remaining balance only"
     elif live_error:
-        note += f"; live usage unavailable, used local logs: {live_error[:120]}"
+        note += "; live usage unavailable, used local logs"
 
     return {
         "source": "ccswitch-local",
@@ -516,7 +565,7 @@ def load_ccswitch_usage(db_path: Path, app_type: str = "codex", provider_id: str
             "latest_rollup_date": latest_rollup,
             "latest_log_time": latest_log,
             "usage_script_enabled": bool(usage_script.get("enabled") is not False),
-            "usage_endpoint": request_url if request_url else "",
+            "usage_endpoint_configured": bool(request_url),
             "usage": {
                 "today": today_usage,
                 "total": total_usage,

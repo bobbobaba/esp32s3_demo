@@ -9,6 +9,7 @@ namespace watch {
 struct QuotaHomeSnapshot {
     bool valid = false;
     char provider[32] = "";
+    char status[20] = "";
     char currency[8] = "";
     double balance = 0.0;
     double today_cost = 0.0;

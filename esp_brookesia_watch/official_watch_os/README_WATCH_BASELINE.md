@@ -79,9 +79,9 @@ idf.py build
 当前构建结果：
 
 - App：`build/esp-brookesia.bin`
-- 版本：`0.1.59`
-- 大小：约 3.9 MB，二进制大小 `0x3def40`
-- SHA256：`f67d2960dad61a3f0153e0202152a5438d103feb4538dc9c2ea481591d4bc882`
+- 版本：`0.1.66`
+- 大小：约 3.9 MB，二进制大小 `0x3de5e0`
+- SHA256：`9aa8c98d9fe9aec31717a31a2bd9acd6cfca5cf00e998b30514d7108713172ce`
 - OTA app 分区：11 MB
 - 余量：约 65%
 
@@ -205,6 +205,20 @@ OTA 写入策略：
 - 写入完成后执行 `esp_ota_end()` 校验。
 - 校验成功后 `esp_ota_set_boot_partition()`，再 `esp_restart()`。
 - OTA 不写 NVS/LittleFS，因此保留 WiFi 记录和已下载应用。
+
+## 2026-08-12 0.1.66 ccswitch live config / usage-only display
+
+- Quota / ccswitch：
+  - 同步脚本兼容新版 CC Switch 当前 provider 配置，支持从 `settings_config.auth` 提取本机真实 key、从 `settings_config.config` 提取 `base_url`，用于尝试 provider live usage 查询；
+  - 当前 provider 没有 live quota 或 `limit_monthly_usd` 时，不显示假余额，继续上传并显示本机真实 `proxy_request_logs` / `usage_daily_rollups` 汇总；
+  - 上传 raw 数据时不包含 key/token/secret，也不包含第三方 provider endpoint，只保留 `usage_endpoint_configured` 布尔诊断；
+  - Quota App 记录并显示 `usage_only` 状态，首页 Quota 摘要也持久化 status，避免把 `remaining_amount=0` 误显示为真实余额；
+  - 成本字段兼容 `actual_cost` / `total_cost` / `cost_usd`，适配不同开源/服务器 token 用量 UI 的字段风格。
+- Release：`releases/0.1.66-watch-os-brookesia.bin`
+- SHA256：`9aa8c98d9fe9aec31717a31a2bd9acd6cfca5cf00e998b30514d7108713172ce`
+- OTA 固件 ID：`144`
+- 已本地构建通过并上传 OTA：app 分区余量约 65%；固件镜像版本头确认为 `0.1.66`；远端 bin 与本地 release SHA256 一致。
+- 本版本仍只更新 app 固件；不刷 NVS / LittleFS / SD / otadata，保留 WiFi 记录、设置项和 AppStore 下载内容。
 
 ## 2026-08-12 0.1.64 reliability polish / Files diagnostics
 

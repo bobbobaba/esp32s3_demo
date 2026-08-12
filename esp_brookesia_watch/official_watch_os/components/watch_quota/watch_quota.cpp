@@ -134,6 +134,34 @@ double json_double(cJSON *object, const char *name, double fallback = 0.0)
     return fallback;
 }
 
+bool json_number(cJSON *object, const char *name, double *value)
+{
+    if (object == nullptr || value == nullptr) {
+        return false;
+    }
+    cJSON *item = cJSON_GetObjectItemCaseSensitive(object, name);
+    if (!cJSON_IsNumber(item)) {
+        return false;
+    }
+    *value = item->valuedouble;
+    return true;
+}
+
+double json_first_double(cJSON *object, const char *first, const char *second, const char *third = nullptr, double fallback = 0.0)
+{
+    double value = fallback;
+    if (json_number(object, first, &value)) {
+        return value;
+    }
+    if (json_number(object, second, &value)) {
+        return value;
+    }
+    if (third != nullptr && json_number(object, third, &value)) {
+        return value;
+    }
+    return fallback;
+}
+
 cJSON *json_object(cJSON *object, const char *name)
 {
     if (object == nullptr) {
@@ -166,6 +194,7 @@ void normalize(QuotaHomeSnapshot *snapshot)
         return;
     }
     snapshot->provider[sizeof(snapshot->provider) - 1] = '\0';
+    snapshot->status[sizeof(snapshot->status) - 1] = '\0';
     snapshot->currency[sizeof(snapshot->currency) - 1] = '\0';
     snapshot->updated_at[sizeof(snapshot->updated_at) - 1] = '\0';
     if (snapshot->provider[0] == '\0') {
@@ -173,6 +202,9 @@ void normalize(QuotaHomeSnapshot *snapshot)
     }
     if (snapshot->currency[0] == '\0') {
         std::snprintf(snapshot->currency, sizeof(snapshot->currency), "$");
+    }
+    if (snapshot->status[0] == '\0') {
+        std::snprintf(snapshot->status, sizeof(snapshot->status), "unknown");
     }
 }
 
@@ -225,11 +257,12 @@ void refresh_task(void *)
     QuotaHomeSnapshot snapshot = {};
     snapshot.valid = true;
     std::snprintf(snapshot.provider, sizeof(snapshot.provider), "%s", json_string(root, "provider", "Quota").c_str());
+    std::snprintf(snapshot.status, sizeof(snapshot.status), "%s", json_string(root, "status", "unknown").c_str());
     std::snprintf(snapshot.currency, sizeof(snapshot.currency), "%s", json_string(root, "currency", "USD").c_str());
     snapshot.balance = json_double(root, "remaining_amount", 0.0);
-    snapshot.today_cost = json_double(today, "actual_cost", 0.0);
+    snapshot.today_cost = json_first_double(today, "actual_cost", "total_cost", "cost_usd", 0.0);
     snapshot.today_tokens = json_double(today, "total_tokens", 0.0);
-    snapshot.total_cost = json_double(total, "actual_cost", 0.0);
+    snapshot.total_cost = json_first_double(total, "actual_cost", "total_cost", "cost_usd", 0.0);
     snapshot.total_tokens = json_double(total, "total_tokens", 0.0);
     std::snprintf(snapshot.updated_at, sizeof(snapshot.updated_at), "%s", json_string(root, "updated_at", "").c_str());
     cJSON_Delete(root);
@@ -255,6 +288,8 @@ esp_err_t init_locked()
         nvs_get_str(handle, "provider", s_snapshot.provider, &len);
         len = sizeof(s_snapshot.currency);
         nvs_get_str(handle, "currency", s_snapshot.currency, &len);
+        len = sizeof(s_snapshot.status);
+        nvs_get_str(handle, "status", s_snapshot.status, &len);
         len = sizeof(s_snapshot.updated_at);
         nvs_get_str(handle, "updated", s_snapshot.updated_at, &len);
         load_double(handle, "balance", &s_snapshot.balance);
@@ -311,6 +346,9 @@ esp_err_t quota_home_set(const QuotaHomeSnapshot *snapshot)
         err = nvs_set_str(handle, "currency", s_snapshot.currency);
     }
     if (err == ESP_OK) {
+        err = nvs_set_str(handle, "status", s_snapshot.status);
+    }
+    if (err == ESP_OK) {
         err = nvs_set_str(handle, "updated", s_snapshot.updated_at);
     }
     if (err == ESP_OK) {
@@ -355,7 +393,8 @@ void quota_home_text(char *buffer, size_t buffer_size)
     compact_number(today_tokens, sizeof(today_tokens), snapshot.today_tokens);
     const char *currency = snapshot.currency;
     const char *symbol = (std::strcmp(currency, "USD") == 0) ? "$" : currency;
-    if (snapshot.balance <= 0.0 && snapshot.total_cost > 0.0) {
+    const bool usage_only = std::strcmp(snapshot.status, "usage_only") == 0;
+    if ((usage_only || snapshot.balance <= 0.0) && snapshot.total_cost > 0.0) {
         std::snprintf(
             buffer,
             buffer_size,

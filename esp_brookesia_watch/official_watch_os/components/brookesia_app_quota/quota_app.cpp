@@ -144,6 +144,34 @@ double json_double(cJSON *object, const char *name, double fallback = 0.0)
     return fallback;
 }
 
+bool json_number(cJSON *object, const char *name, double *value)
+{
+    if (object == nullptr || value == nullptr) {
+        return false;
+    }
+    cJSON *item = cJSON_GetObjectItemCaseSensitive(object, name);
+    if (!cJSON_IsNumber(item)) {
+        return false;
+    }
+    *value = item->valuedouble;
+    return true;
+}
+
+double json_first_double(cJSON *object, const char *first, const char *second, const char *third = nullptr, double fallback = 0.0)
+{
+    double value = fallback;
+    if (json_number(object, first, &value)) {
+        return value;
+    }
+    if (json_number(object, second, &value)) {
+        return value;
+    }
+    if (third != nullptr && json_number(object, third, &value)) {
+        return value;
+    }
+    return fallback;
+}
+
 cJSON *json_object(cJSON *object, const char *name)
 {
     if (object == nullptr) {
@@ -606,8 +634,10 @@ void QuotaApp::quotaTask(void *arg)
     compact_number(total_tokens, sizeof(total_tokens), json_double(total_usage, "total_tokens", 0.0));
     compact_number(rpm_text, sizeof(rpm_text), rpm);
     compact_number(tpm_text, sizeof(tpm_text), tpm);
-    amount_text(today_cost, sizeof(today_cost), currency.c_str(), json_double(today_usage, "actual_cost", 0.0));
-    amount_text(total_cost, sizeof(total_cost), currency.c_str(), json_double(total_usage, "actual_cost", 0.0));
+    const double today_cost_value = json_first_double(today_usage, "actual_cost", "total_cost", "cost_usd", 0.0);
+    const double total_cost_value = json_first_double(total_usage, "actual_cost", "total_cost", "cost_usd", 0.0);
+    amount_text(today_cost, sizeof(today_cost), currency.c_str(), today_cost_value);
+    amount_text(total_cost, sizeof(total_cost), currency.c_str(), total_cost_value);
 
     char today[192] = {};
     std::snprintf(
@@ -722,10 +752,11 @@ void QuotaApp::quotaTask(void *arg)
         snapshot.valid = true;
         std::snprintf(snapshot.provider, sizeof(snapshot.provider), "%s", provider.c_str());
         std::snprintf(snapshot.currency, sizeof(snapshot.currency), "%s", currency.c_str());
+        std::snprintf(snapshot.status, sizeof(snapshot.status), "%s", status.c_str());
         snapshot.balance = remaining;
-        snapshot.today_cost = json_double(today_usage, "actual_cost", 0.0);
+        snapshot.today_cost = today_cost_value;
         snapshot.today_tokens = json_double(today_usage, "total_tokens", 0.0);
-        snapshot.total_cost = json_double(total_usage, "actual_cost", 0.0);
+        snapshot.total_cost = total_cost_value;
         snapshot.total_tokens = json_double(total_usage, "total_tokens", 0.0);
         std::snprintf(snapshot.updated_at, sizeof(snapshot.updated_at), "%s", updated.c_str());
         watch::quota_home_set(&snapshot);

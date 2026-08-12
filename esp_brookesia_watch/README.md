@@ -34,10 +34,21 @@ esp_brookesia_watch/
 
 - 工程：`/home/bo/esp_brookesia_watch/official_watch_os`
 - 构建输出：`official_watch_os/build/esp-brookesia.bin`
-- 最新 release：`releases/0.1.65-watch-os-brookesia.bin`
-- 最新 SHA256：`42934032661dff1ff05ae3c148a4af2e82ffdbb37edacecbb97e90c59c933dc8`
-- 最新 OTA 固件 ID：`143`
+- 最新 release：`releases/0.1.66-watch-os-brookesia.bin`
+- 最新 SHA256：`9aa8c98d9fe9aec31717a31a2bd9acd6cfca5cf00e998b30514d7108713172ce`
+- 最新 OTA 固件 ID：`144`
 - 最新 OTA URL：私有 OTA 后台保存，公开 GitHub 文档不记录真实地址。
+
+0.1.66 新增：
+
+- Quota / ccswitch：
+  - 同步脚本兼容新版 CC Switch 当前 provider 配置：从 `settings_config.auth` 和 `settings_config.config` 读取真实 API key / base URL，用于尝试 provider live usage 查询；
+  - provider 没有 live quota 或月额度时继续使用本机 `proxy_request_logs` / `usage_daily_rollups` 的真实请求、token、成本和模型统计，状态明确为 `usage_only`；
+  - 同步到服务器的 raw 数据不上传 key/token/secret，也不上传第三方 provider endpoint，只保留 `usage_endpoint_configured` 布尔诊断；
+  - Quota App 和首页摘要记录 `status`，`usage_only` 时显示本月成本、今日成本和 token，不再把 `remaining_amount=0` 误当真实余额；
+  - Quota 成本字段兼容 `actual_cost` / `total_cost` / `cost_usd`。
+- 本版本仍只更新 app 固件；不刷 NVS / LittleFS / SD / otadata，保留 WiFi 记录、设置项、已下载 App 和 SD 内容。
+- 已本地构建通过并上传 OTA：固件 ID `144`；app 分区余量约 65%；固件镜像版本头确认为 `0.1.66`；远端 bin 与本地 release SHA256 一致。
 
 0.1.65 新增：
 
