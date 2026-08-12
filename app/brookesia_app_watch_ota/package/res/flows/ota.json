@@ -1,0 +1,10 @@
+{
+    "type": "screenFlow",
+    "id": "watch_ota",
+    "screens": [
+        "ota"
+    ],
+    "initial": "ota",
+    "transitions": []
+}
+

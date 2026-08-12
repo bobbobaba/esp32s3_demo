@@ -1,0 +1,8 @@
+version: "0.1.0"
+description: Native OTA update app for the Waveshare ESP32-S3 Touch AMOLED watch build.
+dependencies:
+  espressif/brookesia_system_core:
+    version: "0.8.*"
+    override_path: ../../system/brookesia_system_core
+    require: public
+

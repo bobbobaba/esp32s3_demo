@@ -1,0 +1,21 @@
+{
+    "type": "screenFlow",
+    "id": "shell_pages",
+    "screens": [
+        "home",
+        "launcher"
+    ],
+    "initial": "home",
+    "transitions": [
+        {
+            "from": [],
+            "action": "super.nav.open_launcher",
+            "to": "launcher"
+        },
+        {
+            "from": [],
+            "action": "super.nav.home",
+            "to": "home"
+        }
+    ]
+}

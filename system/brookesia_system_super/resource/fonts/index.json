@@ -1,0 +1,31 @@
+{
+    "type": "fontSet",
+    "fonts": [
+        {
+            "id": "default",
+            "kind": "file",
+            "src": "NotoSansSC-Regular.subset.ttf",
+            "languages": [
+                "en",
+                "zh_CN"
+            ]
+        },
+        {
+            "id": "telex",
+            "kind": "file",
+            "src": "Telex-Regular.ttf",
+            "languages": [
+                "en"
+            ]
+        },
+        {
+            "id": "zh_CN",
+            "kind": "file",
+            "src": "NotoSansSC-Regular.subset.ttf",
+            "languages": [
+                "en",
+                "zh_CN"
+            ]
+        }
+    ]
+}

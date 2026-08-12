@@ -1,0 +1,12 @@
+{
+    "type": "imageSet",
+    "images": [
+        {
+            "id": "launcher_icon",
+            "src": "launcher_icon.jpg",
+            "width": 92,
+            "height": 92
+        }
+    ]
+}
+

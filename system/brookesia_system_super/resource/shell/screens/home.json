@@ -1,0 +1,438 @@
+{
+    "type": "viewScreen",
+    "id": "home",
+    "commonProps": {
+        "scrollable": false
+    },
+    "style": {
+        "padding": 0
+    },
+    "styleRefs": [
+        "shell.watchHome"
+    ],
+    "children": [
+        {
+            "type": "container",
+            "id": "face",
+            "commonProps": {
+                "clickable": false,
+                "scrollable": false
+            },
+            "placement": {
+                "mode": "absolute",
+                "x": 0,
+                "y": 0,
+                "width": "${env.widthDp}",
+                "height": "${env.heightDp}"
+            },
+            "style": {
+                "padding": 0
+            },
+            "children": [
+                {
+                    "type": "container",
+                    "id": "top_status",
+                    "commonProps": {
+                        "clickable": false,
+                        "scrollable": false
+                    },
+                    "layout": {
+                        "type": "flex",
+                        "flexFlow": "row",
+                        "mainAlign": "spaceBetween",
+                        "crossAlign": "center"
+                    },
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "52dp",
+                        "y": "24dp",
+                        "width": "${expr(${env.widthDp} - 104dp)}",
+                        "height": "44dp"
+                    },
+                    "style": {
+                        "padding": 0
+                    },
+                    "children": [
+                        {
+                            "type": "label",
+                            "id": "mode",
+                            "labelProps": {
+                                "text": "WATCH"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "96dp",
+                                "height": "36dp"
+                            },
+                            "styleRefs": [
+                                "shell.watchStatusText"
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "id": "right_status",
+                            "layout": {
+                                "type": "flex",
+                                "flexFlow": "row",
+                                "gap": "10dp",
+                                "mainAlign": "end",
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "170dp",
+                                "height": "40dp"
+                            },
+                            "style": {
+                                "padding": 0
+                            },
+                            "children": [
+                                {
+                                    "type": "container",
+                                    "id": "wifi",
+                                    "layout": {
+                                        "type": "flex",
+                                        "mainAlign": "center",
+                                        "crossAlign": "center"
+                                    },
+                                    "bindings": {
+                                        "style.bgColor": "wifi_bg"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "width": "88dp",
+                                        "height": "36dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchStatusPill"
+                                    ],
+                                    "children": [
+                                        {
+                                            "type": "label",
+                                            "id": "label",
+                                            "labelProps": {
+                                                "text": "WiFi"
+                                            },
+                                            "bindings": {
+                                                "labelProps.text": "wifi_text",
+                                                "style.textColor": "wifi_color"
+                                            },
+                                            "placement": {
+                                                "mode": "flow"
+                                            },
+                                            "styleRefs": [
+                                                "shell.watchStatusPillText"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "battery",
+                                    "layout": {
+                                        "type": "flex",
+                                        "mainAlign": "center",
+                                        "crossAlign": "center"
+                                    },
+                                    "bindings": {
+                                        "style.bgColor": "battery_bg"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "width": "72dp",
+                                        "height": "36dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchStatusPill"
+                                    ],
+                                    "children": [
+                                        {
+                                            "type": "label",
+                                            "id": "label",
+                                            "labelProps": {
+                                                "text": "BAT"
+                                            },
+                                            "bindings": {
+                                                "labelProps.text": "battery_text",
+                                                "style.textColor": "battery_color"
+                                            },
+                                            "placement": {
+                                                "mode": "flow"
+                                            },
+                                            "styleRefs": [
+                                                "shell.watchStatusPillText"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "label",
+                    "id": "date",
+                    "labelProps": {
+                        "text": "----.--.--"
+                    },
+                    "bindings": {
+                        "labelProps.text": "date_text"
+                    },
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "24dp",
+                        "y": "92dp",
+                        "width": "${expr(${env.widthDp} - 48dp)}",
+                        "height": "28dp"
+                    },
+                    "styleRefs": [
+                        "shell.watchDate"
+                    ]
+                },
+                {
+                    "type": "label",
+                    "id": "clock",
+                    "labelProps": {
+                        "text": "--:--"
+                    },
+                    "bindings": {
+                        "labelProps.text": "clock_text"
+                    },
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "20dp",
+                        "y": "128dp",
+                        "width": "${expr(${env.widthDp} - 40dp)}",
+                        "height": "96dp"
+                    },
+                    "styleRefs": [
+                        "shell.watchClock"
+                    ]
+                },
+                {
+                    "type": "container",
+                    "id": "accent_line",
+                    "commonProps": {
+                        "clickable": false
+                    },
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "24dp",
+                        "y": "242dp",
+                        "width": "${expr(${env.widthDp} - 48dp)}",
+                        "height": "2dp"
+                    },
+                    "styleRefs": [
+                        "shell.watchDivider"
+                    ]
+                },
+                {
+                    "type": "label",
+                    "id": "brand",
+                    "labelProps": {
+                        "text": "ESP32-S3 AMOLED"
+                    },
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "24dp",
+                        "y": "264dp",
+                        "width": "${expr(${env.widthDp} - 48dp)}",
+                        "height": "24dp"
+                    },
+                    "styleRefs": [
+                        "shell.watchBrand"
+                    ]
+                },
+                {
+                    "type": "label",
+                    "id": "hint",
+                    "labelProps": {
+                        "text": "Tap grid to open apps"
+                    },
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "24dp",
+                        "y": "${expr(${env.heightDp} - 142dp)}",
+                        "width": "${expr(${env.widthDp} - 48dp)}",
+                        "height": "22dp"
+                    },
+                    "styleRefs": [
+                        "shell.watchHint"
+                    ]
+                },
+                {
+                    "type": "button",
+                    "id": "apps",
+                    "events": [
+                        {"type": "clicked", "action": "super.nav.open_launcher"}
+                    ],
+                    "interactionRefs": ["press.scale"],
+                    "placement": {
+                        "mode": "absolute",
+                        "x": "${expr((${env.widthDp} - 72dp) / 2)}",
+                        "y": "${expr(${env.heightDp} - 112dp)}",
+                        "width": "72dp",
+                        "height": "72dp"
+                    },
+                    "style": {
+                        "padding": 0
+                    },
+                    "styleRefs": [
+                        "shell.watchAppsButton"
+                    ],
+                    "children": [
+                        {
+                            "type": "container",
+                            "id": "dots",
+                            "commonProps": {
+                                "clickable": false
+                            },
+                            "layout": {
+                                "type": "flex",
+                                "flexFlow": "rowWrap",
+                                "gap": "6dp",
+                                "mainAlign": "center",
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "absolute",
+                                "x": "20dp",
+                                "y": "20dp",
+                                "width": "32dp",
+                                "height": "32dp"
+                            },
+                            "children": [
+                                {
+                                    "type": "container",
+                                    "id": "d1",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d2",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d3",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d4",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d5",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d6",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d7",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d8",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "id": "d9",
+                                    "commonProps": {
+                                        "clickable": false
+                                    },
+                                    "placement": {
+                                        "width": "6dp",
+                                        "height": "6dp"
+                                    },
+                                    "styleRefs": [
+                                        "shell.watchAppDot"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "type": "constant",
+    "data": {
+        "watchOta": {
+            "layout": {
+                "pagePadding": "18dp",
+                "pageGap": "12dp",
+                "cardPadding": "14dp",
+                "cardGap": "10dp",
+                "buttonHeight": "44dp",
+                "buttonGap": "10dp",
+                "progressHeight": "16dp",
+                "rowHeight": "38dp",
+                "valueColumn": "118dp",
+                "partitionColumn": "190dp"
+            },
+            "font": {
+                "title": "28sp",
+                "body": "16sp",
+                "caption": "13sp",
+                "partition": "11sp",
+                "button": "16sp"
+            }
+        }
+    }
+}

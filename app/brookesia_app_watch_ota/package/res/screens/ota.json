@@ -1,0 +1,585 @@
+{
+    "type": "viewScreen",
+    "id": "ota",
+    "styleRefs": [
+        "app.page"
+    ],
+    "style": {
+        "padding": "${constant.watchOta.layout.pagePadding}"
+    },
+    "layout": {
+        "type": "flex",
+        "flexFlow": "column",
+        "mainAlign": "start",
+        "crossAlign": "stretch",
+        "gap": "${constant.watchOta.layout.pageGap}"
+    },
+    "children": [
+        {
+            "type": "container",
+            "id": "page",
+            "commonProps": {
+                "scrollable": true
+            },
+            "layout": {
+                "type": "flex",
+                "flexFlow": "column",
+                "mainAlign": "start",
+                "crossAlign": "stretch",
+                "gap": "${constant.watchOta.layout.pageGap}"
+            },
+            "placement": {
+                "mode": "flow",
+                "width": "match",
+                "height": "match"
+            },
+            "children": [
+                {
+                    "type": "container",
+                    "id": "header",
+                    "styleRefs": [
+                        "app.card"
+                    ],
+                    "style": {
+                        "padding": "${constant.watchOta.layout.cardPadding}"
+                    },
+                    "layout": {
+                        "type": "flex",
+                        "flexFlow": "column",
+                        "gap": "6dp"
+                    },
+                    "placement": {
+                        "mode": "flow",
+                        "width": "match",
+                        "height": "wrap",
+                        "alignSelf": "stretch"
+                    },
+                    "children": [
+                        {
+                            "type": "label",
+                            "id": "title",
+                            "styleRefs": [
+                                "app.cardTitle"
+                            ],
+                            "style": {
+                                "fontSize": "${constant.watchOta.font.title}"
+                            },
+                            "labelProps": {
+                                "text": "OTA 更新"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        },
+                        {
+                            "type": "label",
+                            "id": "status",
+                            "bindings": {
+                                "labelProps.text": "status"
+                            },
+                            "styleRefs": [
+                                "app.caption"
+                            ],
+                            "style": {
+                                "fontSize": "${constant.watchOta.font.body}"
+                            },
+                            "labelProps": {
+                                "text": "点击检测更新"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "id": "info",
+                    "styleRefs": [
+                        "app.card"
+                    ],
+                    "style": {
+                        "padding": "${constant.watchOta.layout.cardPadding}"
+                    },
+                    "layout": {
+                        "type": "flex",
+                        "flexFlow": "column",
+                        "gap": "${constant.watchOta.layout.cardGap}"
+                    },
+                    "placement": {
+                        "mode": "flow",
+                        "width": "match",
+                        "height": "wrap",
+                        "alignSelf": "stretch"
+                    },
+                    "children": [
+                        {
+                            "type": "container",
+                            "id": "current",
+                            "layout": {
+                                "type": "grid",
+                                "gridTemplateColumns": [
+                                    "match",
+                                    "${constant.watchOta.layout.valueColumn}"
+                                ],
+                                "gridTemplateRows": [
+                                    "${constant.watchOta.layout.rowHeight}"
+                                ],
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "${constant.watchOta.layout.rowHeight}",
+                                "alignSelf": "stretch"
+                            },
+                            "children": [
+                                {
+                                    "type": "label",
+                                    "id": "label",
+                                    "styleRefs": [
+                                        "app.listItemTitle"
+                                    ],
+                                    "labelProps": {
+                                        "text": "当前版本"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "gridColumn": 0,
+                                        "gridRow": 0,
+                                        "alignSelf": "center"
+                                    }
+                                },
+                                {
+                                    "type": "label",
+                                    "id": "value",
+                                    "bindings": {
+                                        "labelProps.text": "value"
+                                    },
+                                    "styleRefs": [
+                                        "app.listItemValue"
+                                    ],
+                                    "labelProps": {
+                                        "text": "--"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "gridColumn": 1,
+                                        "gridRow": 0,
+                                        "alignSelf": "center"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "id": "remote",
+                            "layout": {
+                                "type": "grid",
+                                "gridTemplateColumns": [
+                                    "match",
+                                    "${constant.watchOta.layout.valueColumn}"
+                                ],
+                                "gridTemplateRows": [
+                                    "${constant.watchOta.layout.rowHeight}"
+                                ],
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "${constant.watchOta.layout.rowHeight}",
+                                "alignSelf": "stretch"
+                            },
+                            "children": [
+                                {
+                                    "type": "label",
+                                    "id": "label",
+                                    "styleRefs": [
+                                        "app.listItemTitle"
+                                    ],
+                                    "labelProps": {
+                                        "text": "服务器版本"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "gridColumn": 0,
+                                        "gridRow": 0,
+                                        "alignSelf": "center"
+                                    }
+                                },
+                                {
+                                    "type": "label",
+                                    "id": "value",
+                                    "bindings": {
+                                        "labelProps.text": "value"
+                                    },
+                                    "styleRefs": [
+                                        "app.listItemValue"
+                                    ],
+                                    "labelProps": {
+                                        "text": "--"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "gridColumn": 1,
+                                        "gridRow": 0,
+                                        "alignSelf": "center"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "id": "partition",
+                            "layout": {
+                                "type": "grid",
+                                "gridTemplateColumns": [
+                                    "match",
+                                    "${constant.watchOta.layout.partitionColumn}"
+                                ],
+                                "gridTemplateRows": [
+                                    "${constant.watchOta.layout.rowHeight}"
+                                ],
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "${constant.watchOta.layout.rowHeight}",
+                                "alignSelf": "stretch"
+                            },
+                            "children": [
+                                {
+                                    "type": "label",
+                                    "id": "label",
+                                    "styleRefs": [
+                                        "app.listItemTitle"
+                                    ],
+                                    "labelProps": {
+                                        "text": "分区"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "gridColumn": 0,
+                                        "gridRow": 0,
+                                        "alignSelf": "center"
+                                    }
+                                },
+                                {
+                                    "type": "label",
+                                    "id": "value",
+                                    "bindings": {
+                                        "labelProps.text": "value"
+                                    },
+                                    "styleRefs": [
+                                        "app.listItemValue"
+                                    ],
+                                    "style": {
+                                        "fontSize": "${constant.watchOta.font.partition}"
+                                    },
+                                    "labelProps": {
+                                        "text": "--"
+                                    },
+                                    "placement": {
+                                        "mode": "flow",
+                                        "gridColumn": 1,
+                                        "gridRow": 0,
+                                        "alignSelf": "center"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "label",
+                            "id": "log",
+                            "bindings": {
+                                "labelProps.text": "log"
+                            },
+                            "styleRefs": [
+                                "app.caption"
+                            ],
+                            "style": {
+                                "fontSize": "${constant.watchOta.font.caption}"
+                            },
+                            "labelProps": {
+                                "text": "更新说明会显示在这里"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "id": "policy",
+                    "styleRefs": [
+                        "app.card"
+                    ],
+                    "style": {
+                        "padding": "${constant.watchOta.layout.cardPadding}"
+                    },
+                    "layout": {
+                        "type": "flex",
+                        "flexFlow": "column",
+                        "gap": "6dp"
+                    },
+                    "placement": {
+                        "mode": "flow",
+                        "width": "match",
+                        "height": "wrap",
+                        "alignSelf": "stretch"
+                    },
+                    "children": [
+                        {
+                            "type": "label",
+                            "id": "title",
+                            "styleRefs": [
+                                "app.listItemTitle"
+                            ],
+                            "labelProps": {
+                                "text": "更新策略"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        },
+                        {
+                            "type": "label",
+                            "id": "body",
+                            "styleRefs": [
+                                "app.caption"
+                            ],
+                            "style": {
+                                "fontSize": "${constant.watchOta.font.caption}"
+                            },
+                            "labelProps": {
+                                "text": "只更新系统固件分区，保留 Wi-Fi 记录和应用商店已下载软件。"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "id": "progress",
+                    "styleRefs": [
+                        "app.card"
+                    ],
+                    "style": {
+                        "padding": "${constant.watchOta.layout.cardPadding}"
+                    },
+                    "layout": {
+                        "type": "flex",
+                        "flexFlow": "column",
+                        "gap": "${constant.watchOta.layout.cardGap}"
+                    },
+                    "placement": {
+                        "mode": "flow",
+                        "width": "match",
+                        "height": "wrap",
+                        "alignSelf": "stretch"
+                    },
+                    "children": [
+                        {
+                            "type": "label",
+                            "id": "download_label",
+                            "bindings": {
+                                "labelProps.text": "text"
+                            },
+                            "styleRefs": [
+                                "app.caption"
+                            ],
+                            "labelProps": {
+                                "text": "下载进度 0%"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        },
+                        {
+                            "type": "progressBar",
+                            "id": "download_bar",
+                            "bindings": {
+                                "rangeProps.value": "value"
+                            },
+                            "rangeProps": {
+                                "min": 0,
+                                "max": 100,
+                                "value": 0
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "${constant.watchOta.layout.progressHeight}",
+                                "alignSelf": "stretch"
+                            }
+                        },
+                        {
+                            "type": "label",
+                            "id": "write_label",
+                            "bindings": {
+                                "labelProps.text": "text"
+                            },
+                            "styleRefs": [
+                                "app.caption"
+                            ],
+                            "labelProps": {
+                                "text": "写入进度 0%"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "wrap"
+                            }
+                        },
+                        {
+                            "type": "progressBar",
+                            "id": "write_bar",
+                            "bindings": {
+                                "rangeProps.value": "value"
+                            },
+                            "rangeProps": {
+                                "min": 0,
+                                "max": 100,
+                                "value": 0
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "match",
+                                "height": "${constant.watchOta.layout.progressHeight}",
+                                "alignSelf": "stretch"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "id": "actions",
+                    "layout": {
+                        "type": "flex",
+                        "flexFlow": "rowWrap",
+                        "mainAlign": "center",
+                        "crossAlign": "center",
+                        "gap": "${constant.watchOta.layout.buttonGap}"
+                    },
+                    "placement": {
+                        "mode": "flow",
+                        "width": "match",
+                        "height": "wrap",
+                        "alignSelf": "stretch"
+                    },
+                    "children": [
+                        {
+                            "type": "button",
+                            "id": "check",
+                            "interactionRefs": [
+                                "press.scale"
+                            ],
+                            "bindings": {
+                                "commonProps.disabled": "disabled",
+                                "style.opacity": "opacity"
+                            },
+                            "events": [
+                                {
+                                    "type": "clicked",
+                                    "action": "watch_ota.check"
+                                }
+                            ],
+                            "style": {
+                                "bgColor": "${color.primary.fill}",
+                                "radius": "14dp"
+                            },
+                            "layout": {
+                                "type": "flex",
+                                "mainAlign": "center",
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "150dp",
+                                "height": "${constant.watchOta.layout.buttonHeight}"
+                            },
+                            "children": [
+                                {
+                                    "type": "label",
+                                    "id": "label",
+                                    "style": {
+                                        "textColor": "${color.primary.on}",
+                                        "fontSize": "${constant.watchOta.font.button}"
+                                    },
+                                    "labelProps": {
+                                        "text": "检测更新"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "button",
+                            "id": "confirm",
+                            "commonProps": {
+                                "disabled": true
+                            },
+                            "interactionRefs": [
+                                "press.scale"
+                            ],
+                            "bindings": {
+                                "commonProps.disabled": "disabled",
+                                "style.opacity": "opacity"
+                            },
+                            "events": [
+                                {
+                                    "type": "clicked",
+                                    "action": "watch_ota.confirm"
+                                }
+                            ],
+                            "style": {
+                                "bgColor": "${color.warning.fill}",
+                                "radius": "14dp",
+                                "opacity": 110
+                            },
+                            "layout": {
+                                "type": "flex",
+                                "mainAlign": "center",
+                                "crossAlign": "center"
+                            },
+                            "placement": {
+                                "mode": "flow",
+                                "width": "150dp",
+                                "height": "${constant.watchOta.layout.buttonHeight}"
+                            },
+                            "children": [
+                                {
+                                    "type": "label",
+                                    "id": "label",
+                                    "style": {
+                                        "textColor": "${color.warning.on}",
+                                        "fontSize": "${constant.watchOta.font.button}"
+                                    },
+                                    "labelProps": {
+                                        "text": "确认更新"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

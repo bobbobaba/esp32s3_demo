@@ -1,0 +1,59 @@
+devices:
+  - name: axp2101_power_manager
+    chip: axp2101
+    type: custom
+    version: default
+    config:
+      frequency: 400000
+      i2c_addr: 0x34
+    peripherals:
+      - name: i2c_master
+
+  - name: display_lcd
+    chip: sh8601
+    type: display_lcd
+    sub_type: spi
+    version: default
+    dependencies:
+      waveshare/esp_lcd_sh8601: "^2"
+    config:
+      x_max: 410
+      y_max: 502
+      need_reset: false
+      io_spi_config:
+        cs_gpio_num: 12
+        spi_mode: 0
+        lcd_cmd_bits: 32
+        flags:
+          quad_mode: true
+      lcd_panel_config:
+        reset_gpio_num: 8
+        vendor_config: NULL
+    peripherals:
+      - name: spi_display
+
+  - name: lcd_touch
+    chip: ft5x06
+    type: lcd_touch
+    sub_type: i2c
+    version: default
+    dependencies:
+      espressif/esp_lcd_touch_ft5x06: "^1"
+    config:
+      io_i2c_config:
+        lcd_cmd_bits: 8
+        scl_speed_hz: 400000
+      touch_config:
+        x_max: 410
+        y_max: 502
+        rst_gpio_num: 9
+        int_gpio_num: 38
+        flags:
+          swap_xy: false
+          mirror_x: false
+          mirror_y: false
+    peripherals:
+      - name: i2c_master
+        # FT3168 uses 0x38 as a 7-bit address. Board Manager expects the
+        # corresponding 8-bit wire address here, matching its FT5x06 boards.
+        i2c_addr: [0x70]
