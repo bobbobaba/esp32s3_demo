@@ -822,7 +822,15 @@ void MusicPlayerApp::runLocalPlay()
         std::snprintf(log, sizeof(log), "play failed path=%s err=%s", path, esp_err_to_name(ret));
         watch::storage_sd_append_log("music", log);
     }
-    scanTracks();
+    if (_state_mutex == nullptr) {
+        _state_mutex = xSemaphoreCreateMutex();
+    }
+    if ((_state_mutex == nullptr) || (xSemaphoreTake(_state_mutex, pdMS_TO_TICKS(50)) == pdTRUE)) {
+        _list_dirty = true;
+        if (_state_mutex != nullptr) {
+            xSemaphoreGive(_state_mutex);
+        }
+    }
     setCloudState(false, (ret == ESP_OK) ? 100 : 0, (ret == ESP_OK) ? "Playing local file" : "Play failed");
 }
 
@@ -1516,9 +1524,17 @@ void MusicPlayerApp::runCloudDownload(int index)
         return;
     }
 
-    if ((index >= 0) && (index < static_cast<int>(_cloud_track_count))) {
-        _cloud_tracks[index].downloaded = true;
+    if (_state_mutex == nullptr) {
+        _state_mutex = xSemaphoreCreateMutex();
+    }
+    if ((_state_mutex == nullptr) || (xSemaphoreTake(_state_mutex, pdMS_TO_TICKS(200)) == pdTRUE)) {
+        if ((index >= 0) && (index < static_cast<int>(_cloud_track_count))) {
+            _cloud_tracks[index].downloaded = true;
+        }
         _list_dirty = true;
+        if (_state_mutex != nullptr) {
+            xSemaphoreGive(_state_mutex);
+        }
     }
     if (_download_play_after) {
         if (_state_mutex == nullptr) {

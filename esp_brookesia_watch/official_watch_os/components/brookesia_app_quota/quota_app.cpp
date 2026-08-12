@@ -528,10 +528,16 @@ void QuotaApp::quotaTask(void *arg)
     const std::string updated = json_string(root, "updated_at", "-");
     cJSON *raw = json_object(root, "raw");
     cJSON *usage_response = json_object(raw, "usage_response");
-    cJSON *usage = json_object(usage_response, "usage");
+    cJSON *usage = json_object(raw, "usage");
+    if (usage == nullptr) {
+        usage = json_object(usage_response, "usage");
+    }
     cJSON *today_usage = json_object(usage, "today");
     cJSON *total_usage = json_object(usage, "total");
-    cJSON *model_stats = json_array(usage_response, "model_stats");
+    cJSON *model_stats = json_array(raw, "model_stats");
+    if (model_stats == nullptr) {
+        model_stats = json_array(usage_response, "model_stats");
+    }
     const std::string mode = json_string(usage_response, "mode", "-");
     const std::string raw_month = json_string(raw, "month", "");
     const std::string month_start = json_string(raw, "month_start", "");
@@ -542,7 +548,7 @@ void QuotaApp::quotaTask(void *arg)
     const double avg_ms = json_double(usage, "average_duration_ms", 0.0);
 
     const bool has_metric = limit > 0.0 || used > 0.0 || remaining > 0.0 || percent > 0.0;
-    if (status == "not_synced" || (!has_metric && status != "unlimited")) {
+    if (status == "not_synced" || (!has_metric && status != "unlimited" && status != "usage_only")) {
         char detail[384] = {};
         std::snprintf(
             detail,
@@ -577,7 +583,7 @@ void QuotaApp::quotaTask(void *arg)
         std::snprintf(headline, sizeof(headline), "MONTHLY USAGE");
         std::snprintf(title, sizeof(title), "%.0f%%", percent);
     } else {
-        std::snprintf(headline, sizeof(headline), "USAGE");
+        std::snprintf(headline, sizeof(headline), status == "usage_only" ? "MONTHLY COST" : "USAGE");
         std::snprintf(title, sizeof(title), "%s", used_text);
     }
 
@@ -587,7 +593,7 @@ void QuotaApp::quotaTask(void *arg)
     } else if (limit > 0.0) {
         std::snprintf(summary, sizeof(summary), "%s · remain %s", provider.c_str(), remaining_text);
     } else {
-        std::snprintf(summary, sizeof(summary), "%s · limit not set", provider.c_str());
+        std::snprintf(summary, sizeof(summary), "%s · real usage, no quota limit", provider.c_str());
     }
 
     char today_tokens[24] = {};
@@ -640,7 +646,12 @@ void QuotaApp::quotaTask(void *arg)
             char request_text[16] = {};
             char model_cost[28] = {};
             compact_number(request_text, sizeof(request_text), json_double(item, "requests", 0.0));
-            amount_text(model_cost, sizeof(model_cost), currency.c_str(), json_double(item, "actual_cost", 0.0));
+            amount_text(
+                model_cost,
+                sizeof(model_cost),
+                currency.c_str(),
+                json_double(item, "actual_cost", json_double(item, "total_cost", json_double(item, "cost_usd", 0.0)))
+            );
             std::snprintf(
                 line,
                 sizeof(line),
@@ -693,14 +704,14 @@ void QuotaApp::quotaTask(void *arg)
         std::snprintf(
             detail,
             sizeof(detail),
-            "Source: %s\nAccount: %s\nPlan: %s\nStatus: %s  Mode: %s\nUsed: %s\nLimit: not set in ccswitch\nReset: %s\nUpdated: %s",
+            "Source: %s\nAccount: %s\nPlan: %s\nStatus: %s  Mode: %s\nMonth used: %s\nLimit: not set in ccswitch\nLatest: %s\nUpdated: %s",
             source.c_str(),
             account.c_str(),
             plan.c_str(),
             status.c_str(),
             mode.c_str(),
             used_text,
-            reset.c_str(),
+            latest_rollup.empty() ? reset.c_str() : latest_rollup.c_str(),
             updated.c_str()
         );
     }

@@ -229,6 +229,26 @@ OTA 写入策略：
 - 已本地构建通过并上传 OTA：app 分区余量约 65%；固件镜像版本头确认为 `0.1.64`；远端 bin 与本地 release SHA256 一致。
 - 本版本仍只更新 app 固件；不刷 NVS / LittleFS / SD / otadata，保留 WiFi 记录、设置项和 AppStore 下载内容。
 
+## 2026-08-12 0.1.65 ccswitch quota / UI task safety
+
+- WiFi：
+  - 扫描结束后恢复非配网状态下的自动连接重试；
+  - 当手动扫描打断 STA 连接后，如果已有保存网络且未连接，会请求重新自动连接，避免长期停留在未连接状态。
+- Music：
+  - 本地播放后台任务不再直接调用 `scanTracks()` 或间接更新 LVGL 控件；
+  - 播放完成只标记 `_list_dirty`，由 LVGL timer 在 UI 线程刷新列表和状态，降低点击 `Play` 后闪退/卡屏风险；
+  - 云下载完成后对 `_cloud_tracks` 和 `_list_dirty` 的更新加 mutex 保护。
+- Quota / ccswitch：
+  - 修复新版 ccswitch SQLite schema 兼容，同步脚本读取真实 `providers`、`proxy_request_logs`、`usage_daily_rollups`；
+  - 当前 provider 没有 `limit_monthly_usd` / live quota 时，上传 `usage_only`，显示真实今日/本月成本、请求数、tokens、模型排行，不伪造剩余额度；
+  - Quota App 兼容新结构 `raw.usage` / `raw.model_stats`，同时保留旧结构 `raw.usage_response.usage`；
+  - 首页 Quota 摘要在 `usage_only` 时显示本月成本和今日成本/token，不再误显示 `$0.00` 余额。
+- Release：`releases/0.1.65-watch-os-brookesia.bin`
+- SHA256：`42934032661dff1ff05ae3c148a4af2e82ffdbb37edacecbb97e90c59c933dc8`
+- OTA 固件 ID：`143`
+- 已本地构建通过并上传 OTA：app 分区余量约 65%；固件镜像版本头确认为 `0.1.65`；远端 bin 与本地 release SHA256 一致。
+- 本版本仍只更新 app 固件；不刷 NVS / LittleFS / SD / otadata，保留 WiFi 记录、设置项和 AppStore 下载内容。
+
 ## 2026-08-12 0.1.63 task cleanup / home render stability
 
 - 修复 `xTaskCreateWithCaps()` 创建的短生命周期任务退出时使用普通 `vTaskDelete()` 的问题，改为 `vTaskDeleteWithCaps()`：

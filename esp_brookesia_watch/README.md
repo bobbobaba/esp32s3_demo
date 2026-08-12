@@ -34,10 +34,21 @@ esp_brookesia_watch/
 
 - 工程：`/home/bo/esp_brookesia_watch/official_watch_os`
 - 构建输出：`official_watch_os/build/esp-brookesia.bin`
-- 最新 release：`releases/0.1.64-watch-os-brookesia.bin`
-- 最新 SHA256：`c568375c03f24df44e28608b578332787fae4e429a071214b493598c265eb04c`
-- 最新 OTA 固件 ID：`142`
+- 最新 release：`releases/0.1.65-watch-os-brookesia.bin`
+- 最新 SHA256：`42934032661dff1ff05ae3c148a4af2e82ffdbb37edacecbb97e90c59c933dc8`
+- 最新 OTA 固件 ID：`143`
 - 最新 OTA URL：私有 OTA 后台保存，公开 GitHub 文档不记录真实地址。
+
+0.1.65 新增：
+
+- WiFi：网页配网后恢复非配网状态下的自动连接重试，扫描结束后如果有已保存网络且未连接，会自动重新发起连接。
+- Music：本地播放后台任务不再直接扫描目录/改 UI；播放完成只标记列表刷新，由 LVGL timer 在 UI 线程统一刷新，降低点击 Play 后闪退/卡屏风险。
+- Quota：
+  - 修复新版 ccswitch SQLite schema 兼容：同步脚本改为读取 `providers`、`proxy_request_logs`、`usage_daily_rollups` 的真实汇总；
+  - 当前 provider 没有月额度配置时显示 `usage_only`：展示今日/本月真实成本、请求数、tokens、模型排行，不显示假余额；
+  - Quota App 和首页摘要同时兼容新结构 `raw.usage` / `raw.model_stats`。
+- 已本地构建通过并上传 OTA：固件 ID `143`；app 分区余量约 65%；固件镜像版本头确认为 `0.1.65`；远端 bin 与本地 release SHA256 一致。
+- 本版本仍只更新 app 固件；不刷 NVS / LittleFS / SD / otadata，保留 WiFi 记录、设置项、已下载 App 和 SD 内容。
 
 0.1.64 新增：
 

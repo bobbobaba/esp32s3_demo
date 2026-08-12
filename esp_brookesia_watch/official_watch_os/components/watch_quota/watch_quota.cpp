@@ -215,7 +215,10 @@ void refresh_task(void *)
     }
     cJSON *raw = json_object(root, "raw");
     cJSON *usage_response = json_object(raw, "usage_response");
-    cJSON *usage = json_object(usage_response, "usage");
+    cJSON *usage = json_object(raw, "usage");
+    if (usage == nullptr) {
+        usage = json_object(usage_response, "usage");
+    }
     cJSON *today = json_object(usage, "today");
     cJSON *total = json_object(usage, "total");
 
@@ -352,16 +355,29 @@ void quota_home_text(char *buffer, size_t buffer_size)
     compact_number(today_tokens, sizeof(today_tokens), snapshot.today_tokens);
     const char *currency = snapshot.currency;
     const char *symbol = (std::strcmp(currency, "USD") == 0) ? "$" : currency;
-    std::snprintf(
-        buffer,
-        buffer_size,
-        "%s %.2f  T %s%.2f/%s tok",
-        symbol,
-        snapshot.balance,
-        symbol,
-        snapshot.today_cost,
-        today_tokens
-    );
+    if (snapshot.balance <= 0.0 && snapshot.total_cost > 0.0) {
+        std::snprintf(
+            buffer,
+            buffer_size,
+            "M %s%.2f  T %s%.2f/%s tok",
+            symbol,
+            snapshot.total_cost,
+            symbol,
+            snapshot.today_cost,
+            today_tokens
+        );
+    } else {
+        std::snprintf(
+            buffer,
+            buffer_size,
+            "%s %.2f  T %s%.2f/%s tok",
+            symbol,
+            snapshot.balance,
+            symbol,
+            snapshot.today_cost,
+            today_tokens
+        );
+    }
 }
 
 bool quota_refresh_is_running()

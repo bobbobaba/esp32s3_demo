@@ -1823,6 +1823,12 @@ esp_err_t wifi_scan_items(WifiScanItem *items, size_t max_items, size_t *out_cou
         *out_count = count;
     }
     s_wifi_state = s_connected ? WifiState::Connected : WifiState::Idle;
+    if (!s_provisioning) {
+        s_manual_disconnect = false;
+        if (s_has_credentials && !s_connected) {
+            request_autoconnect(false);
+        }
+    }
     return ESP_OK;
 }
 
