@@ -1,0 +1,12 @@
+# Name,         Type, SubType, Offset,   Size,      Flags
+# Keep this layout compatible with the verified 0.1.12 recovery layout:
+# - nvs keeps WiFi records and system settings
+# - otadata enables dual-slot OTA
+# - littlefs_data keeps downloaded apps/assets
+# - both OTA app slots stay below the 16 MB flash mmap boundary
+nvs,            data, nvs,     0x9000,   0x6000,
+otadata,        data, ota,     0xF000,   0x2000,
+phy_init,       data, phy,     0x11000,  0x1000,
+ota_0,          app,  ota_0,   0x20000,  0x780000,
+ota_1,          app,  ota_1,   0x7A0000, 0x780000,
+littlefs_data,  data, littlefs,0x1620000,0x900000,

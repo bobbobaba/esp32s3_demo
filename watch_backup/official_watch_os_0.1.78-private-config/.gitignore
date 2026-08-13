@@ -1,0 +1,8 @@
+build/
+managed_components/
+*.bin
+*.elf
+*.map
+*.bak
+components/watch_private_config/include/watch_private_config_private.hpp
+
