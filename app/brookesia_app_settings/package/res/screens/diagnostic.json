@@ -1,0 +1,194 @@
+{
+    "type": "viewScreen",
+    "id": "diagnostic",
+    "mountMode": "dynamic",
+    "commonProps": {
+        "scrollable": false
+    },
+    "styleRefs": [
+        "app.page"
+    ],
+    "children": [
+        {
+            "type": "container",
+            "id": "page",
+            "commonProps": {
+                "scrollable": true
+            },
+            "layout": {
+                "type": "flex",
+                "flexFlow": "column",
+                "gap": "${constant.settings.layout.pageGap}"
+            },
+            "placement": {
+                "mode": "absolute",
+                "x": "${constant.settings.layout.pageX}",
+                "y": "${constant.settings.layout.pageY}",
+                "width": "${constant.settings.layout.pageWidth}",
+                "height": "${constant.settings.layout.pageHeight}"
+            },
+            "children": [
+                {
+                    "type": "label",
+                    "id": "caption",
+                    "styleRefs": [
+                        "app.caption"
+                    ],
+                    "labelProps": {
+                        "text": "System diagnostics"
+                    },
+                    "placement": {
+                        "mode": "flow"
+                    },
+                    "bindings": {
+                        "labelProps.text": "labelProps.text"
+                    }
+                },
+                {
+                    "type": "templateRef",
+                    "id": "overview_card",
+                    "templateId": "settings_card",
+                    "slots": {
+                        "content": [
+                            {
+                                "type": "templateRef",
+                                "id": "system",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "System" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            },
+                            {
+                                "type": "templateRef",
+                                "id": "firmware",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Firmware" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            },
+                            {
+                                "type": "templateRef",
+                                "id": "reset_reason",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Reset reason" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "templateRef",
+                    "id": "memory_card",
+                    "templateId": "settings_card",
+                    "slots": {
+                        "content": [
+                            {
+                                "type": "templateRef",
+                                "id": "heap",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Heap" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            },
+                            {
+                                "type": "templateRef",
+                                "id": "psram",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "PSRAM" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "templateRef",
+                    "id": "connectivity_card",
+                    "templateId": "settings_card",
+                    "slots": {
+                        "content": [
+                            {
+                                "type": "templateRef",
+                                "id": "wifi",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Wi-Fi" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            },
+                            {
+                                "type": "templateRef",
+                                "id": "ota",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "OTA" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "templateRef",
+                    "id": "power_card",
+                    "templateId": "settings_card",
+                    "slots": {
+                        "content": [
+                            {
+                                "type": "templateRef",
+                                "id": "battery",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Battery" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            },
+                            {
+                                "type": "templateRef",
+                                "id": "power_source",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Power source" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "templateRef",
+                    "id": "runtime_card",
+                    "templateId": "settings_card",
+                    "slots": {
+                        "content": [
+                            {
+                                "type": "templateRef",
+                                "id": "app",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Current app" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            },
+                            {
+                                "type": "templateRef",
+                                "id": "task",
+                                "templateId": "setting_row",
+                                "overrides": {
+                                    "title": { "labelProps": { "text": "Tasks" } },
+                                    "value": { "labelProps": { "text": "--" } }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
