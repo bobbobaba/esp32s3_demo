@@ -1,0 +1,144 @@
+# Watch firmware release history
+
+This file is the auditable release index for the sanitized watch backup. The
+source snapshot is stored at `watch_backup/official_watch_os_0.1.133/`.
+
+## Current snapshot
+
+- Firmware source version: `0.1.133`
+- Device: Waveshare ESP32-S3 Touch AMOLED 2.06
+- Snapshot date: 2026-08-17
+- Firmware binaries are intentionally not committed to this repository.
+- Generated `build/`, `managed_components/`, `sdkconfig`, and private config
+  files are intentionally excluded.
+
+## Confirmed functional notes
+
+The following notes are copied from the retained local engineering record; no
+feature is inferred from a version number alone.
+
+- `0.1.30`–`0.1.42`: the retained baseline documents the music/audio stability
+  work, Alarm, Calendar, independent launcher icons, Anniv, Weather, Timer,
+  Cloud, and Quota applications, plus asynchronous UI/task fixes.
+- `0.1.43`–`0.1.78`: the retained baseline documents quota, settings, memory,
+  OTA, home-screen, Wi-Fi, and non-blocking UI fixes. `0.1.78` is the last
+  complete release note before the later media work.
+- `0.1.79`: settings performance/storage asynchronous work and version display
+  updates.
+- `0.1.80`: asynchronous diagnostics work.
+- `0.1.81`: Gallery/media folders and cloud gallery/cloud video foundations.
+  The original note explicitly says the early build did not yet enable a full
+  image decoder/video playback pipeline.
+- `0.1.119`: LiveTalk WebSocket audio-frame accumulation fix; partial JSON
+  frames are buffered until the declared payload is complete.
+- `0.1.120`–`0.1.131`: release binaries are retained locally, but a detailed
+  per-version engineering note was not preserved in the current workspace.
+  This range is recorded as “artifact retained; notes unavailable” rather
+  than reconstructed speculatively.
+- `0.1.132`: first Level app release. It added a two-axis bubble level UI,
+  IMU readings, Zero/Reset/Back controls, a launcher icon, and foreground-only
+  sensor polling.
+- `0.1.133`: corrected the level-angle algorithm. The app now uses gravity
+  vectors constrained to `-90..+90` degrees, ignores non-gravity acceleration,
+  and applies app-local low-pass filtering so small movements do not jump to
+  `±180` degrees.
+
+## Retained release artifacts
+
+The table records local artifacts only. The binary itself is not uploaded to
+GitHub; SHA256 is included so a separately stored firmware can be checked.
+Timestamps are the local build-artifact timestamps (Asia/Shanghai host).
+
+| Version | Timestamp | Size (bytes) | SHA256 |
+|---|---:|---:|---|
+| 0.1.1 | 2026-08-08 02:05:40 | 6603120 | `fb6232e4268d8ce3413089e3baad191048ca27de172020f677be78e6f056eb19` |
+| 0.1.2 | 2026-08-08 02:16:28 | 6603664 | `311d7a29f468de09865d4e87441d924d2829135df73811cbabd34a83e49a85f4` |
+| 0.1.3 | 2026-08-08 02:43:25 | 6604976 | `372d3c34f4250100ba8a25fff7035fd9a7fd21de1d68bd55c54ab56bde081500` |
+| 0.1.5 | 2026-08-08 02:56:38 | 6608912 | `3fcd5f088e7e81d858c17e75ca9523ffe1d8dee3411ffa0e57517cbd4350d6bd` |
+| 0.1.6 | 2026-08-08 03:16:28 | 6770240 | `ebdac894f262966662aa992d6066d0c83474ff81cb2e28bacd50adf02e6c6b3e` |
+| 0.1.7 | 2026-08-08 03:23:03 | 6770256 | `c6ae2cf721435a870b0cd4418ca0566bf60da1489d63d7d8caedbe47133169ff` |
+| 0.1.8 | 2026-08-08 03:36:42 | 6766576 | `44c5dd9e1de8beb1fbc3dc3826c379df48a3d09506a4a4453c1b43e7c561cb6d` |
+| 0.1.9 | 2026-08-08 03:44:06 | 6766592 | `1ee5a871da4da3ca75b652f5c84985141418443820440b9fe2612a511cedbbb6` |
+| 0.1.10 | 2026-08-08 03:50:14 | 6764336 | `e6fb6f84fe60fe248cd254d75b57e175ef46e8725e885abd23af0dcf6e63317b` |
+| 0.1.11 | 2026-08-08 03:56:20 | 6764336 | `0fccdd9ae1b603455176b42c063b1e2ecebea83ef884046e49483f1a91ca9418` |
+| 0.1.12 | 2026-08-08 04:15:10 | 6764336 | `6140ddd6b5b63d1b3ef9754dae1adfe659f4e9832d1c4db02c86411b8102c8f4` |
+| 0.1.13 | 2026-08-08 04:20:16 | 6764336 | `c200145eb071c0e269118649ea423749bcb7b97fe6c8046393b3bf8aa1f496b5` |
+| 0.1.14 | 2026-08-08 04:38:02 | 6596016 | `4980eb29b54793ffa5dba02cf7b2bc07cfdfe0c6e9c23a2c141f89effa91065b` |
+| 0.1.15 | 2026-08-08 04:49:06 | 6445056 | `e7f42dc5e4b88b4af110c19d131eb901978b86328b9e3dfc9a54a7951e5dc6b2` |
+| 0.1.25 | 2026-08-10 19:57:43 | 3712928 | `e50af1d851cd54e30b337446ec96334883b605df40d1c0c2b81900124a9cc995` |
+| 0.1.26 | 2026-08-10 20:18:43 | 3713440 | `62cc5683d0a1fd1fe7ebeb78cb69cdbe1a256e75f649649b666561fa335e43b2` |
+| 0.1.27 | 2026-08-10 20:41:28 | 3714000 | `b9b487fa143bfba04262e8a983f86a5987e4a6bd718b30fbf24b9e6d01dfb2ed` |
+| 0.1.28 | 2026-08-10 20:54:04 | 3714576 | `334c9a0e5aa90b78188882850e497215485b02666f083986d76b98c032f32eb5` |
+| 0.1.29 | 2026-08-10 21:35:53 | 3743824 | `97ce98c3cfb72699787e9614cdefddaf87ddff5bb9d9a5188451cc09efe8aea0` |
+| 0.1.30 | 2026-08-10 22:12:45 | 3792544 | `e5a0186bea0207f68d607c1b2b3ff04c843e9101e3a2c117f041f361d347536c` |
+| 0.1.31 | 2026-08-10 22:24:44 | 3794896 | `cdb178cbe6d789c74b69305579324a3b49c3a57b77c19015f0151e6df7048bd7` |
+| 0.1.32 | 2026-08-10 22:36:58 | 3794944 | `17bd425c39fbda19a91dc1dc23948c8ff02af4e9ba4aee5b7a978cbbdc95722b` |
+| 0.1.33 | 2026-08-10 22:43:35 | 3794976 | `ba9c6f3c1fcfc1509482ec5b2a212d6e6fb0b40ee4febafe8e97ff80d835e3a0` |
+| 0.1.34 | 2026-08-10 23:08:12 | 3798416 | `b306aa324a36cf4407005cdb9de7005d5d972b8a870fe003f4c435850f013f0c` |
+| 0.1.35 | 2026-08-10 23:32:52 | 3802096 | `0d4a0be99fe04462d36f33ff0bcba06c1f6e1beeeb81e696937ba0f1965fd325` |
+| 0.1.36 | 2026-08-10 23:58:52 | 3802848 | `5a51ffc35c396ddcfa84aa27c4585544630114ee48bf20f163aae11133f29e81` |
+| 0.1.37 | 2026-08-11 00:10:34 | 3803584 | `3639bbc5333d7a150c7016133ac23e383b90fafb3aa0dca5f917e8bd1ab358ef` |
+| 0.1.38 | 2026-08-11 00:25:20 | 3812032 | `56173b76d392bf4f89b47e933cec7f32cf105e43e0d7d67a5e3031ea285b4004` |
+| 0.1.39 | 2026-08-11 00:43:17 | 3826784 | `11d94e4553365bb3f52e815d150c30faf0e9323ac79cda0b7b62a1bdcc3b1d12` |
+| 0.1.40 | 2026-08-11 00:55:30 | 3876160 | `3a627f23000ff15967aa1e5559d160d28835b0036cfbe7e499ed13539baece52` |
+| 0.1.41 | 2026-08-11 01:05:19 | 3925520 | `fc27bb2ffc9e05c08dcb9a7f10a7e08862addabeb3687ea9c498c378e0495f72` |
+| 0.1.42 | 2026-08-11 01:19:41 | 3967920 | `e9d5c0880a7892c33ec7ca8e28361e3c65efbb00505ef7286cc75969ca313151` |
+| 0.1.43 | 2026-08-11 08:43:18 | 3968368 | `52607fbc0bd3904fd8f961eae60b9003646bc579af0703e7dc7523e6fcb3454a` |
+| 0.1.44 | 2026-08-11 20:55:55 | 4031696 | `9c497dc7e4492bde983afa896291fbc13aaf6bd39e27d81c06dc38fbf00788ca` |
+| 0.1.45 | 2026-08-11 21:09:42 | 4031696 | `73746452ec2f626d5369a4a71a5cf73ea07a9fe89a7fa4e7e18669317a95da3d` |
+| 0.1.46 | 2026-08-11 21:21:49 | 4031696 | `d6bdbcf55cf7941f8eaaf51d1a2fa9375c22132b44f725214e5c1b8dd6b4264f` |
+| 0.1.49 | 2026-08-11 22:17:50 | 4041168 | `ddf16616f756119b3d3ce50e974568d8cc6a029e0d9928ead3ba4752932a7fa4` |
+| 0.1.50 | 2026-08-11 22:27:30 | 4045760 | `f7998d91ebd0f9136d7b08c55bc2da047b8a05715062914ca9162562fd6b32bc` |
+| 0.1.51 | 2026-08-11 22:39:05 | 4048880 | `a77c38780fb0ad0736026dc69b6be8b14b3120937af2fb5d61a962f4f0b8b3c6` |
+| 0.1.52 | 2026-08-12 11:01:18 | 4057056 | `9c3d5743df735f85f6fd6d212666036f25c3250149ddf11df9c1a699aed0b323` |
+| 0.1.53 | 2026-08-12 11:22:04 | 4059648 | `e589cfd0fbd08903afd3db18c5a40beeca681e2cb7b7117d2f5d32cdb093c75b` |
+| 0.1.54 | 2026-08-12 11:36:08 | 4059696 | `80ced6af2c46cdcc1c16dfb98a13f6885dc2ed68b0c424e44d2d87c88db5ed8c` |
+| 0.1.55 | 2026-08-12 11:40:07 | 4059792 | `466c632d15c549310a2b0e5d622acfa750b8e15401f6d88fe5bf331a15a34cf9` |
+| 0.1.56 | 2026-08-12 11:50:31 | 4051680 | `805e508a290eff354ae4dfe4b3976710f4a3d48266581393ab7c3a1f6a84d17d` |
+| 0.1.57 | 2026-08-12 11:58:51 | 4051680 | `9bc759153a02d3dec6bb5cd3b1f6eca1fb94d9a41be0281eda40cc1d86d96d69` |
+| 0.1.58 | 2026-08-12 14:09:19 | 4057520 | `9a1db63f382030b7a2fcfdc5d7d86469a1f3bc153bd652dc99676c75fa3bedfa` |
+| 0.1.59 | 2026-08-12 15:08:39 | 4058944 | `f67d2960dad61a3f0153e0202152a5438d103feb4538dc9c2ea481591d4bc882` |
+| 0.1.60 | 2026-08-12 15:37:11 | 4050048 | `487d2c2f2931a55f28f28cd04a6bfede1f2745b046fa0999d882c4bf6599678f` |
+| 0.1.61 | 2026-08-12 16:27:55 | 4051152 | `105e4776ecd9f428903000aab1cafd6337e5b29358affa4531af4f682d51b135` |
+| 0.1.62 | 2026-08-12 17:26:41 | 4053280 | `09c768e93c97395ab3d0085e2152beae59e4e15dec5939311b8a5fde7d3a4af8` |
+| 0.1.63 | 2026-08-12 17:57:53 | 4054240 | `7f0f0ccf4949d82d05e09fac784263f665574921ea3d0377f33e01546d082297` |
+| 0.1.64 | 2026-08-12 18:25:12 | 4055600 | `c568375c03f24df44e28608b578332787fae4e429a071214b493598c265eb04c` |
+| 0.1.65 | 2026-08-12 19:07:58 | 4056480 | `42934032661dff1ff05ae3c148a4af2e82ffdbb37edacecbb97e90c59c933dc8` |
+| 0.1.66 | 2026-08-12 19:25:10 | 4056544 | `9aa8c98d9fe9aec31717a31a2bd9acd6cfca5cf00e998b30514d7108713172ce` |
+| 0.1.67 | 2026-08-12 19:36:24 | 4056672 | `157e0e3e6ec15d56d275cc37a6417805d1265b15aea29db28dd1573886e3fb55` |
+| 0.1.68 | 2026-08-12 20:16:52 | 4056672 | `8fe5fcf796207f04cbceea5a79f6fdeeaa5be9617034971df24dbbc30280ad18` |
+| 0.1.69 | 2026-08-12 20:31:07 | 4043360 | `fc570b760c89755d6e68b651c434a76e817a1a56fcc89dc377b21994581874ca` |
+| 0.1.70 | 2026-08-12 20:37:20 | 4050288 | `18ab88d74d8c5f8544899b6b2f59d98a9e5f6f78635deca026954094b8106f41` |
+| 0.1.71 | 2026-08-12 20:40:44 | 4050480 | `672b1f8943b4e7670edad0d5fc1208e4cba25ad4f1f781fd597d1f6419137863` |
+| 0.1.72 | 2026-08-12 20:43:58 | 4051056 | `53bf91f543f3fe8fdf6e3064bdfc8e05a87acd5c6eeb7814b2f682c98f6db32d` |
+| 0.1.73 | 2026-08-12 20:53:56 | 4052032 | `7a799b7a1c4b332b9813add1309e723a7d0207d42aa11db6fac2cae3172e6ec3` |
+| 0.1.74 | 2026-08-12 21:06:43 | 4052352 | `663b602e45fd55b68765224a21068bc3ad396bc9a65e357584b5ccb23368d777` |
+| 0.1.75 | 2026-08-12 21:26:16 | 4054144 | `7ccc3eddbb35f6bad89b75ee113052384fefc7b4a09ee2953323a807bbb03c08` |
+| 0.1.76 | 2026-08-12 21:34:32 | 4052352 | `0de77e1fff20d0e08ea0c5bc875f6603ba0ce10d14739ae53cac3144061ac1ad` |
+| 0.1.77 | 2026-08-12 22:00:36 | 4052720 | `01e3caffea121ced6ab74c845d5382f8213d4373dad3a5e015a945a1d3d64541` |
+| 0.1.78 | 2026-08-13 14:38:36 | 4053040 | `527e70bb7eba92b7bd2417a82568022f6ad54a07454e80df4ee7ff37066c6ad0` |
+| 0.1.99 | 2026-08-14 16:20:04 | 4492112 | `ecf6607518ee87622a5a918fdbf9c1b596bd358007420992d1ebeea40f24dede` |
+| 0.1.100 | 2026-08-14 16:37:09 | 4526272 | `135ece3aa4ffe902c3d1ca64baa79675c42e410236014d7ec766744d9a96dd9d` |
+| 0.1.101 | 2026-08-14 16:45:56 | 4527216 | `3cbd52ebe951179739bc7c9948f1ffa42da3fdf642c38bb16cd579436820e32e` |
+| 0.1.103 | 2026-08-14 16:58:39 | 4571840 | `530bc8e975010fac8664bd84a59431883b7a149e08384a6a2a0f994d50ae1ca6` |
+| 0.1.104 | 2026-08-14 17:10:30 | 4572016 | `1421a779fd9d95465ba9edeb16ca305fa90989ff9c962cfaed43d8ec07590012` |
+| 0.1.105 | 2026-08-14 17:52:46 | 4573680 | `8f83e2caa1a385d78d551e343df7d5fafb88e07b4adda6a50bc342c7ef619672` |
+| 0.1.118 | 2026-08-16 11:54:07 | 4590160 | `1e10d7f2adaceb5f17029ae2051118ee6e43d553054d8238e794c394ba458e74` |
+| 0.1.119 | 2026-08-16 12:51:31 | 4590544 | `4de56261c235b04b8ae663bf362b49a09b80cf406fd7da82b26e93d48f5ecf9e` |
+| 0.1.120 | 2026-08-16 21:49:03 | 4851552 | `4e7c5bff5bb316cc94646d605d2220c706ba14f5ecae78f7ba1167ec971808d2` |
+| 0.1.121 | 2026-08-17 10:28:18 | 4852432 | `7e1828787f30616268fcb6891d233826908a27babec14412c0b6d22f28a8105c` |
+| 0.1.122 | 2026-08-17 10:39:59 | 4852560 | `be4010aff1d6a1f5038647057061e51831622fe81fba07fbac72baa8bf8a39ef` |
+| 0.1.123 | 2026-08-17 10:53:15 | 4852576 | `eda8b53b6998542f496de72434608f1ebc42bcf9ac4c6ea9901d1e4ceb92e546` |
+| 0.1.124 | 2026-08-17 11:47:13 | 4855840 | `eb8ba266023c9a6a697642d3cc1b0e772a840ad6263a47bea3f22e9bcda9dd02` |
+| 0.1.128 | 2026-08-17 12:51:55 | 4866960 | `30f0a62acae3d03261982870a8509a19a374a140f961dcb38fd814cf6f3dcc5d` |
+| 0.1.129 | 2026-08-17 13:00:02 | 4868656 | `221a0313e678b7416697c62314c00b19690e0d9148edad60d4ce8939b2665ef7` |
+| 0.1.130 | 2026-08-17 13:18:02 | 4873008 | `1639e76b5635380e4884c3e6e77b4480fc9989053272dd07ea523c48555c976c` |
+| 0.1.131 | 2026-08-17 13:26:55 | 4873456 | `b0836912394f2f27e35ca104d1dec679191e52c9f6c8a0ae0d6c7104672424fe` |
+| 0.1.132 | 2026-08-17 14:48:45 | 4881024 | `ac2754ec50d7ceb1d1a5e201c3bc72cf8f9df7426d54bdb0dfdbe2287ccc637b` |
+| 0.1.133 | 2026-08-17 15:43:29 | 4881360 | `c083d1bf31f5c0faba4c8fa0815c1c6bc93591d0c6a135bd7b36aeef19e1900d` |
+
+## Version numbers without a retained binary
+
+`0.1.4`, `0.1.16`–`0.1.24`, `0.1.47`–`0.1.48`, `0.1.79`–`0.1.98`,
+`0.1.102`, `0.1.106`–`0.1.117`, and `0.1.125`–`0.1.127` have no binary in
+the local release archive. They are not represented as source snapshots here.
